@@ -13,5 +13,9 @@ namespace Sonn.BlockBlast
 
         public const string MUSIC_VOLUME = "MusicVolume";
         public const string SFX_VOLUME = "SFXVolume";
+
+        public const string SHAPE_LAYER = "Shape";
+        public const string SQUARE_LAYER = "Square";
+        public const string BLOCK_SLOT_LAYER = "BlockSlot";
     }
 }

@@ -1,12 +1,12 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
 {
-    public interface ISingleton
+    public class CellSlot : MonoBehaviour
     {
-        void MakeSingleton();
+        public Vector2Int cellPosOnGrid;
+        public bool isBlockOnCell;
     }
 }
