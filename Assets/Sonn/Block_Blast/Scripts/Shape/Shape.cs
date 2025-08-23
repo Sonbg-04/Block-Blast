@@ -11,17 +11,22 @@ namespace Sonn.BlockBlast
         public GameObject SquarePrefab;
         public ShapeData currentShapeData;
         public Vector3 BeforeShapeScale, AfterShapeScale;
+        public System.Action<Shape> OnPlaced;
 
         private List<GameObject> m_currentShapes;
         private Vector3 m_offset,
                         m_startShapePos;
         private bool m_isDragging = false;
+        private List<CellSlot> m_hoveredSlots;
+
+        public Sprite HoverSprite { get; set; }
 
         private void Awake()
         {
             m_currentShapes = new();
+            m_hoveredSlots = new();
             transform.localScale = BeforeShapeScale;
-            m_startShapePos = transform.position;
+            m_startShapePos = transform.localPosition;
         }
         private void Update()
         {
@@ -35,7 +40,7 @@ namespace Sonn.BlockBlast
                 {
                     m_isDragging = true;
                     transform.localScale = AfterShapeScale;
-                    m_offset = transform.position - mousePos;
+                    m_offset = transform.localPosition - mousePos;
                 }
             }
             if (m_isDragging)
@@ -45,22 +50,29 @@ namespace Sonn.BlockBlast
                     Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     pos.z = 0;
 
-                    transform.position = pos + m_offset;
+                    transform.localPosition = pos + m_offset;
+
+                    HandleHoverHighlight();
                 }
                 else if (Input.GetMouseButtonUp(0))
                 {
                     m_isDragging = false;
+
+                    if (m_hoveredSlots.Count > 0)
+                    {
+                        ClearHighlight();
+                    }
+
                     HandleDrop();
                 }
             }
-
         }
         private Bounds GetShapeBounds()
         {
             var cls = GetComponentsInChildren<Collider2D>();
             if (cls == null || cls.Length <= 0)
             {
-                return new Bounds(transform.position, Vector3.zero);
+                return new Bounds(transform.localPosition, Vector3.zero);
             }
             
             var bounds = cls[0].bounds;
@@ -74,7 +86,9 @@ namespace Sonn.BlockBlast
         private void HandleDrop()
         {
             if (IsComponentNull())
+            {
                 return;
+            }
 
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             pos.z = 0;
@@ -82,73 +96,79 @@ namespace Sonn.BlockBlast
             var grid = GridManager.GetIns<GridManager>();
             grid.GridBounds(out var minWorld, out var maxWorld);
 
-            bool insideGrid = pos.x >= minWorld.x && pos.x <= maxWorld.x &&
-                              pos.y >= minWorld.y && pos.y <= maxWorld.y;
-
-            if (insideGrid)
+            Transform nearestChild = null;
+            var minDist = float.MaxValue;
+            foreach (var col in GetComponentsInChildren<Collider2D>())
             {
-                // Tìm block con gần nhất với con trỏ
-                Transform nearestChild = null;
-                float minDist = float.MaxValue;
-                foreach (var col in GetComponentsInChildren<Collider2D>())
+                var d = Vector2.Distance(pos, col.transform.position);
+                if (d < minDist)
                 {
-                    float d = Vector2.Distance(pos, col.transform.position);
-                    if (d < minDist)
-                    {
-                        minDist = d;
-                        nearestChild = col.transform;
-                    }
+                    minDist = d;
+                    nearestChild = col.transform;
                 }
+            }
 
-                if (nearestChild != null)
+            if (nearestChild != null)
+            {
+                var nearestCell = grid.GetNearestCell(nearestChild.position);
+
+                if (nearestCell != null)
                 {
-                    // Cell gần nhất với block con đó
-                    CellSlot nearestCell = grid.GetNearestCell(nearestChild.position);
-                    if (nearestCell != null)
+                    Vector3 offset = nearestChild.position - transform.position;
+                    transform.position = nearestCell.transform.position - offset;
+
+                    transform.localScale = AfterShapeScale;
+
+                    bool hasCollision = false, allInside = true;
+
+                    foreach (var col in GetComponentsInChildren<Collider2D>())
                     {
-                        // offset giữa pivot và block con
-                        Vector3 offset = nearestChild.position - transform.position;
+                        Vector3 worldPos = col.transform.position;
+                        var slot = grid.GetNearestCell(worldPos);
 
-                        // snap pivot sao cho block con khớp cell
-                        transform.position = nearestCell.transform.position - offset;
+                        var colBounds = col.bounds;
 
-                        transform.localScale = AfterShapeScale;
+                        if (colBounds.min.x < minWorld.x || colBounds.max.x > maxWorld.x ||
+                            colBounds.min.y < minWorld.y || colBounds.max.y > maxWorld.y)
+                        {
+                            allInside = false;
+                            break;
+                        }
 
-                        // check collision + set isBlockOnCell
-                        bool hasCollision = false;
+                        if (slot == null || slot.isBlockOnCell)
+                        {
+                            hasCollision = true;
+                            break;
+                        }
+                    }
+
+                    if (allInside && !hasCollision)
+                    {
+                        var index = 0;
                         foreach (var col in GetComponentsInChildren<Collider2D>())
                         {
                             Vector3 worldPos = col.transform.position;
-                            CellSlot slot = grid.GetNearestCell(worldPos);
-
-                            if (slot == null || slot.isBlockOnCell)
+                            var slot = grid.GetNearestCell(worldPos);
+                            if (slot != null)
                             {
-                                hasCollision = true;
-                                break;
+                                slot.isBlockOnCell = true;
+                                var sq = m_currentShapes[index];
+                                slot.SetSquareOnCell(sq);
+                                index++;
                             }
                         }
 
-                        if (!hasCollision)
-                        {
-                            foreach (var col in GetComponentsInChildren<Collider2D>())
-                            {
-                                Vector3 worldPos = col.transform.position;
-                                CellSlot slot = grid.GetNearestCell(worldPos);
-                                if (slot != null)
-                                {
-                                    slot.isBlockOnCell = true;
-                                }
-                            }
-                            enabled = false;
-                            return;
-                        }
+                        enabled = false;
+                        OnPlaced?.Invoke(this);
+                        grid.CheckClearLines();
+                        return;
                     }
                 }
             }
 
-            // reset nếu không đặt được
-            transform.position = m_startShapePos;
+            transform.localPosition = m_startShapePos;
             transform.localScale = BeforeShapeScale;
+
         }
         public void CreateShape(ShapeData sd)
         {
@@ -230,7 +250,9 @@ namespace Sonn.BlockBlast
                 foreach (var active in rowData.Column)
                 {
                     if (active)
+                    {
                         number++;
+                    }
                 }
             }
             return number;
@@ -244,6 +266,76 @@ namespace Sonn.BlockBlast
             }
             return check;
         }
-        
+        public void HandleHoverHighlight()
+        {
+            if (IsComponentNull())
+            {
+                return;
+            }
+
+            if (m_hoveredSlots.Count > 0)
+            {
+                ClearHighlight();
+            }
+
+            var grid = GridManager.GetIns<GridManager>();
+            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            pos.z = 0;
+
+            List<CellSlot> tempSlots = new();
+            bool hasCollision = false, allInside = true;
+
+            grid.GridBounds(out var minWorld, out var maxWorld);
+
+            foreach (var col in GetComponentsInChildren<Collider2D>())
+            {
+                Vector3 worldPos = col.transform.position;
+                var slot = grid.GetNearestCell(worldPos);
+
+                var colBounds = col.bounds;
+                if (colBounds.min.x < minWorld.x || colBounds.max.x > maxWorld.x ||
+                    colBounds.min.y < minWorld.y || colBounds.max.y > maxWorld.y)
+                {
+                    allInside = false;
+                    break;
+                }
+
+                if (slot == null || slot.isBlockOnCell)
+                {
+                    hasCollision = true;
+                }
+
+                tempSlots.Add(slot);
+            }
+
+            if (allInside && !hasCollision && m_currentShapes.Count > 0)
+            {
+                var sampleShape = m_currentShapes[0];
+                var previewedSlots = grid.PreviewClearLines(sampleShape, tempSlots);
+
+                float alpha = 0.3f;
+                foreach (var slot in tempSlots)
+                {
+                    slot.SetHighLight(HoverSprite, alpha);
+                    m_hoveredSlots.Add(slot);
+                }
+
+                foreach (var slot in previewedSlots)
+                {
+                    slot.SetHighLight(HoverSprite, alpha);
+                    m_hoveredSlots.Add(slot);
+                }
+            }
+        }
+        private void ClearHighlight()
+        {
+            foreach (var slot in m_hoveredSlots)
+            {
+                slot.ResetHighlight();
+                slot.ResetHighlightSquares();
+            }
+
+            m_hoveredSlots.Clear();
+        }
     }
 }

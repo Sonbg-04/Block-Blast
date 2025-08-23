@@ -15,5 +15,5 @@ MonoBehaviour:
   Columns: 3
   Rows: 2
   Grid:
-  - Column: 010101
   - Column: 000100
+  - Column: 010101

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3def5c0d7f2da274ba06ecebb0073f36, type: 3}
   m_Name: Shape_02
   m_EditorClassIdentifier: 
-  Columns: 3
-  Rows: 1
+  Columns: 1
+  Rows: 2
   Grid:
-  - Column: 010101
+  - Column: 01
+  - Column: 01

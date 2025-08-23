@@ -8,7 +8,7 @@ using static UnityEditor.PlayerSettings;
 
 namespace Sonn.BlockBlast
 {
-    public class GridManager : MonoBehaviour, IComponentChecking, ISingleton
+    public class GridManager : MonoBehaviour, ISingleton
     {
         public GameObject blockSlotPrefab;
         public Vector2Int GridSize;
@@ -17,7 +17,8 @@ namespace Sonn.BlockBlast
 
         private static Dictionary<Type, MonoBehaviour> m_ins;
         private List<CellSlot> m_cellSlots;
-
+        private CellSlot[,] m_cell;
+        
         public static T GetIns<T>() where T : MonoBehaviour
         {
             if (m_ins.TryGetValue(typeof(T), out var ins))
@@ -30,15 +31,12 @@ namespace Sonn.BlockBlast
         {
             m_ins = new();
             m_cellSlots = new();
+            m_cell = new CellSlot[GridSize.x, GridSize.y];
             MakeSingleton();
         }
         private void Start()
         {
             DrawGridMap();
-        }
-        public bool IsComponentNull()
-        {
-            throw new System.NotImplementedException();
         }
         private void DrawGridMap()
         {
@@ -58,6 +56,7 @@ namespace Sonn.BlockBlast
                     if (cell != null)
                     {
                         cell.cellPosOnGrid = new(i, j);
+                        m_cell[i, j] = cell;
                         m_cellSlots.Add(cell);
                     }    
 
@@ -103,6 +102,136 @@ namespace Sonn.BlockBlast
 
             return c;
         }
+        public void CheckClearLines()
+        {
+            var toClear = new HashSet<CellSlot>();
 
+            for (int row = 0; row < GridSize.x; row++)
+            {
+                var fullRow = true;
+                var rowSlots = new List<CellSlot>();
+
+                for (int col = 0; col < GridSize.y; col++)
+                {
+                    var slot = m_cell[row, col];
+                    rowSlots.Add(slot);
+                    if (!slot.isBlockOnCell)
+                    {
+                        fullRow = false;
+                    }    
+                }
+
+                if (fullRow)
+                {
+                    foreach (var r in rowSlots)
+                    {
+                        toClear.Add(r);
+                    }    
+                }    
+            }
+
+            for (int col = 0; col < GridSize.y; col++)
+            {
+                var fullCol = true;
+                var colSlots = new List<CellSlot>();
+
+                for (int row = 0; row < GridSize.x; row++)
+                {
+                    var slot = m_cell[row, col];
+                    colSlots.Add(slot);
+                    if (!slot.isBlockOnCell)
+                    {
+                        fullCol = false;
+                    }
+                }
+
+                if (fullCol)
+                {
+                    foreach (var c in colSlots)
+                    {
+                        toClear.Add(c);
+                    }
+                }
+            }
+
+            foreach (var slot in toClear)
+            {
+                slot.isBlockOnCell = false;
+                slot.ClearSquareOnCell();
+            }
+        }
+        public List<CellSlot> PreviewClearLines(GameObject square, List<CellSlot> hoveredSlots)
+        {
+            var previeweds = new List<CellSlot>();
+            if (square == null || hoveredSlots == null)
+            {
+                return previeweds;
+            }
+
+            foreach (var slot in m_cellSlots)
+            {
+                slot.ResetHighlightSquares();
+            }
+
+            var toHighLight = new HashSet<CellSlot>();
+
+            for (int row = 0; row < GridSize.x; row++)
+            {
+                bool almostFull = true;
+                var rowSlots = new List<CellSlot>();
+
+                for (int col = 0; col < GridSize.y; col++)
+                {
+                    var slot = m_cell[row, col];
+                    rowSlots.Add(slot);
+
+                    if (!slot.isBlockOnCell && !hoveredSlots.Contains(slot))
+                    {
+                        almostFull = false;
+                    }
+                }
+
+                if (almostFull)
+                {
+                    foreach (var s in rowSlots)
+                    {
+                        toHighLight.Add(s);
+                    }
+                }
+            }
+
+            for (int col = 0; col < GridSize.y; col++)
+            {
+                bool almostFull = true;
+                var colSlots = new List<CellSlot>();
+
+                for (int row = 0; row < GridSize.x; row++)
+                {
+                    var slot = m_cell[row, col];
+                    colSlots.Add(slot);
+
+                    if (!slot.isBlockOnCell && !hoveredSlots.Contains(slot))
+                    {
+                        almostFull = false;
+                    }
+                }
+
+                if (almostFull)
+                {
+                    foreach (var s in colSlots)
+                    {
+                        toHighLight.Add(s);
+                    }
+                }
+            }
+
+            foreach (var slot in toHighLight)
+            {
+                slot.SetHighLightSquares(square, 0.6f);
+                previeweds.Add(slot);
+            }
+
+            return previeweds;
+        }
     }
 }

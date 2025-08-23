@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -47,17 +47,14 @@ namespace Sonn.BlockBlast
             var columsTemp = ShapeDataIns.Columns;
             var rowsTemp = ShapeDataIns.Rows;
 
-            ShapeDataIns.Columns = EditorGUILayout.IntField("Columns", columsTemp);
-            ShapeDataIns.Rows = EditorGUILayout.IntField("Rows", rowsTemp);
+            ShapeDataIns.Columns = EditorGUILayout.IntField("Column", columsTemp);
+            ShapeDataIns.Rows = EditorGUILayout.IntField("Row", rowsTemp);
 
             if ((ShapeDataIns.Columns != columsTemp || ShapeDataIns.Rows != rowsTemp) &&
                 ShapeDataIns.Columns > 0 && ShapeDataIns.Rows > 0)
             {
                 ShapeDataIns.CreateNewGrid();
             }
-
-
-
         }
         private void DrawGridTable()
         {
