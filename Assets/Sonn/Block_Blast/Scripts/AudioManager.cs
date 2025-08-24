@@ -12,6 +12,12 @@ namespace Sonn.BlockBlast
         private void Awake()
         {
             MakeSingleton();
+
+            bool isMusicOn = Pref.GetBool(GamePref.IsMusicOn.ToString(), true);
+            bool isSoundOn = Pref.GetBool(GamePref.IsSoundOn.ToString(), true);
+
+            musicSource.mute = !isMusicOn;
+            btnClickSource.mute = !isSoundOn;
         }
         private void Start()
         {

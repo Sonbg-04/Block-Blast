@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Sonn.BlockBlast
 {
@@ -37,6 +38,7 @@ namespace Sonn.BlockBlast
             }
             Pref.currentMode = GameMode.TimeMode;
             AudioManager.Ins.PlaySFX(AudioManager.Ins.btnClickSource);
+            SceneManager.LoadScene(Const.TIME_MODE_SCENE);
 
 
         }

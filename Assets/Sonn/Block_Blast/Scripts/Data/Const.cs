@@ -7,6 +7,7 @@ namespace Sonn.BlockBlast
     public class Const
     {
         public const string MAIN_MENU_SCENE = "Mainmenu";
+        public const string TIME_MODE_SCENE = "TimeModeScene";
 
         public const string BEST_SCORE = "BestScore";
         public const string SCORE = "Score";
@@ -14,8 +15,6 @@ namespace Sonn.BlockBlast
         public const string MUSIC_VOLUME = "MusicVolume";
         public const string SFX_VOLUME = "SFXVolume";
 
-        public const string SHAPE_LAYER = "Shape";
-        public const string SQUARE_LAYER = "Square";
-        public const string BLOCK_SLOT_LAYER = "BlockSlot";
+        public const string GAME_PLAY_TAG = "Gameplay";
     }
 }

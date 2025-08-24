@@ -4,9 +4,7 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Slot
-  - Square
-  - Shape
+  - Gameplay
   layers:
   - Default
   - TransparentFX
@@ -14,9 +12,9 @@ TagManager:
   - 
   - Water
   - UI
-  - Shape
-  - BlockSlot
-  - Square
+  - 
+  - 
+  - 
   - 
   - 
   - 
@@ -41,6 +39,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2921366307
+    locked: 0
+  - name: Gameplay
+    uniqueID: 521133189
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

@@ -9,21 +9,19 @@ namespace Sonn.BlockBlast
         TimeMode,
         ScoreMode
     }
+    public enum GamePref
+    {
+        IsMusicOn,
+        IsSoundOn
+    }
     public static class Pref
     {
         public static GameMode currentMode;
-        public static bool GetBool(string key)
+        public static bool GetBool(string key, bool defaultValue = false)
         {
-            int check = PlayerPrefs.GetInt(key);
-            if (check == 0)
-            {
-                return false;
-            }
-            else if (check == 1)
-            {
-                return true;
-            }
-            return false;
+            return PlayerPrefs.HasKey(key)
+                 ? PlayerPrefs.GetInt(key) == 1 ? true : false
+                 : defaultValue;
         }
         public static void SetBool(string key, bool value)
         {
@@ -35,14 +33,6 @@ namespace Sonn.BlockBlast
             {
                 PlayerPrefs.SetInt(key, 0);
             }    
-        }
-        public static float MusicVolume
-        {
-            set => PlayerPrefs.SetFloat(Const.MUSIC_VOLUME, value);
-        }
-        public static float SFXVolume
-        {
-            set => PlayerPrefs.SetFloat(Const.SFX_VOLUME, value);
         }
         public static int BestScore
         {
