@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace Sonn.BlockBlast
 {
-    public class ShapeStorage : MonoBehaviour
+    public class ShapeStorage : MonoBehaviour, IComponentChecking
     {
         public List<GameObject> spawnSlots;
         public GameObject shapePrefab;
         public List<ShapeData> shapeDatas;
         public List<Sprite> spriteList;
 
-        private int m_placeCount = 0;
+        private int m_placeCount = 0, m_countSpawnShapes = 3;
         private List<Shape> m_currentShapes;
 
         private void Awake()
@@ -22,10 +22,51 @@ namespace Sonn.BlockBlast
         {
             SpawnShapes();
         }
+        public void ClickSpawnShapes()
+        {
+            if (IsComponentNull())
+            {
+                return;
+            }
+
+            if (!(m_placeCount == 0 || m_placeCount >= spawnSlots.Count))
+            {
+                Debug.Log("Chỉ được đổi hình khi chưa đặt gì hoặc đã đặt xong 3 hình!");
+                return;
+            }
+
+            if (m_countSpawnShapes > 0)
+            {
+                SpawnShapes();
+                GUIManager.GetIns<GUIManager>().UpdateRotateCount(m_countSpawnShapes);
+                m_countSpawnShapes--;
+                if (m_countSpawnShapes == 0)
+                {
+                    Debug.Log("Đã hết lượt đổi hình!");
+                    return;
+                }    
+            }    
+        }
+        private void ClearShapes()
+        {
+            foreach (var shape in m_currentShapes)
+            {
+                if (shape != null)
+                {
+                    Destroy(shape.gameObject);
+                }
+            }
+            m_currentShapes.Clear();
+        }
         private void SpawnShapes()
         {
+            if (IsComponentNull())
+            {
+                return;
+            }  
+
             m_placeCount = 0;
-            m_currentShapes.Clear();
+            ClearShapes();
 
             var shuffledShapes = new List<ShapeData>(shapeDatas);
 
@@ -68,10 +109,27 @@ namespace Sonn.BlockBlast
         private void OnShapePlaced(Shape s)
         {
             m_placeCount++;
+
+            if (m_currentShapes.Contains(s))
+            {
+                m_currentShapes.Remove(s);
+            }
+
             if (m_placeCount >= spawnSlots.Count)
             {
                 SpawnShapes();
+            }  
+        }
+        public bool IsComponentNull()
+        {
+            bool check = GUIManager.GetIns<GUIManager>() == null ||
+                         GameManager.GetIns<GameManager>() == null ||
+                         GridManager.GetIns<GridManager>() == null;
+            if (check)
+            {
+                Debug.LogWarning("Có component bị null. Vui lòng kiểm tra lại!");
             }
+            return check;
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Sonn.BlockBlast
                 return;
             }
             Pref.currentMode = GameMode.TimeMode;
+            Pref.currentState = GameState.Starting;
             AudioManager.Ins.PlaySFX(AudioManager.Ins.btnClickSource);
             SceneManager.LoadScene(Const.TIME_MODE_SCENE);
 
@@ -49,6 +50,7 @@ namespace Sonn.BlockBlast
                 return;
             }
             Pref.currentMode = GameMode.ScoreMode;
+            Pref.currentState = GameState.Starting;
             AudioManager.Ins.PlaySFX(AudioManager.Ins.btnClickSource);
 
         }

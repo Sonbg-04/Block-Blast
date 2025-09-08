@@ -14,9 +14,25 @@ namespace Sonn.BlockBlast
         IsMusicOn,
         IsSoundOn
     }
+    public enum GameState
+    {
+        Starting,
+        Playing,
+        GameOver
+    }
+    public enum ClearLineType
+    {
+        Normal,
+        Multiline,
+        Combo,
+        ComboMultiline
+    }
     public static class Pref
     {
+        public static bool hasBestScore;
         public static GameMode currentMode;
+        public static GameState currentState;
+
         public static bool GetBool(string key, bool defaultValue = false)
         {
             return PlayerPrefs.HasKey(key)

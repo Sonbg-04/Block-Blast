@@ -19,13 +19,9 @@ namespace Sonn.BlockBlast
             loading.value = 0;
             AsyncOperation async = SceneManager.LoadSceneAsync(Const.MAIN_MENU_SCENE);
             async.allowSceneActivation = false;
-
-            float targetvalue = 0;
-
             while (async.progress < 0.9f)
             {
-                targetvalue = async.progress;
-
+                float targetvalue = async.progress;
                 while (loading.value < targetvalue)
                 {
                     loading.value += Time.deltaTime * 0.3f;

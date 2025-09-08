@@ -1,18 +1,30 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EndGameDialog : MonoBehaviour
+namespace Sonn.BlockBlast
 {
-    // Start is called before the first frame update
-    void Start()
+    public class EndGameDialog : Dialog, IComponentChecking
     {
-        
-    }
+        public bool IsComponentNull()
+        {
+            bool check = GUIManager.GetIns<GUIManager>() == null ||
+                         GameManager.GetIns<GameManager>() == null ||
+                         GridManager.GetIns<GridManager>() == null;
+            if (check)
+            {
+                Debug.LogWarning("Có component bị null. Vui lòng kiểm tra lại!");
+            }
+            return check;
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public override void Show(bool isShow)
+        {
+            base.Show(isShow);
+        }
+        public override void Close()
+        {
+            base.Close();
+        }
     }
 }

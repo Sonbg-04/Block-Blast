@@ -45,6 +45,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SquarePrefab: {fileID: 1255745839797222561, guid: 87b6c23d8dd41044b82e297b60e0393b, type: 3}
-  currentShapeData: {fileID: 11400000, guid: 3d8baabe4799cdd43a8b26e1938fb1d7, type: 2}
+  currentShapeData: {fileID: 11400000, guid: 7e60c5d817c5c73498fae910509ba290, type: 2}
   BeforeShapeScale: {x: 0.65, y: 0.65, z: 0}
   AfterShapeScale: {x: 0.9, y: 0.9, z: 0}

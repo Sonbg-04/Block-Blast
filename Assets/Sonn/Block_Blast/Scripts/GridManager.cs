@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 namespace Sonn.BlockBlast
 {
@@ -18,7 +15,9 @@ namespace Sonn.BlockBlast
         private static Dictionary<Type, MonoBehaviour> m_ins;
         private List<CellSlot> m_cellSlots;
         private CellSlot[,] m_cell;
-        
+        private int m_currentCombo = 0, m_turnComboClearCount = 0,
+                    m_currentTurn = 1, m_shapePlacedThisTurn = 0;
+
         public static T GetIns<T>() where T : MonoBehaviour
         {
             if (m_ins.TryGetValue(typeof(T), out var ins))
@@ -102,9 +101,10 @@ namespace Sonn.BlockBlast
 
             return c;
         }
-        public void CheckClearLines()
+        public int CheckClearLines()
         {
             var toClear = new HashSet<CellSlot>();
+            var clearedLines = 0;
 
             for (int row = 0; row < GridSize.x; row++)
             {
@@ -123,6 +123,7 @@ namespace Sonn.BlockBlast
 
                 if (fullRow)
                 {
+                    clearedLines++;
                     foreach (var r in rowSlots)
                     {
                         toClear.Add(r);
@@ -147,18 +148,108 @@ namespace Sonn.BlockBlast
 
                 if (fullCol)
                 {
+                    clearedLines++;
                     foreach (var c in colSlots)
                     {
                         toClear.Add(c);
                     }
                 }
             }
-
-            foreach (var slot in toClear)
+            if (toClear.Count > 0)
             {
-                slot.isBlockOnCell = false;
-                slot.ClearSquareOnCell();
+                var index = 0;
+                foreach (var slot in toClear)
+                {
+                    slot.isBlockOnCell = false;
+                    StartCoroutine(ClearLineBlockDelay(slot, index * 0.05f));
+                    index++;
+                }
+            }    
+            return clearedLines;
+        }
+        IEnumerator ClearLineBlockDelay(CellSlot slot, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            slot.ClearSquareOnCell();
+        }
+        public void ProcessAfterShapePlaced()
+        {
+            m_shapePlacedThisTurn++;
+            int cleared;
+            do
+            {
+                cleared = CheckClearLines();
+                if (cleared > 0)
+                {
+                    if (m_turnComboClearCount == 0 && m_currentCombo == 0)
+                    {
+                        m_currentCombo = 1;
+                    }
+                    else
+                    {
+                        m_currentCombo++;
+                        GUIManager.GetIns<GUIManager>().ShowGreatTxtImg();
+                    }
+
+                    var type = GetClearLineType(cleared, m_currentCombo);
+                    var score = CalculateScore(cleared, m_currentCombo, type);
+                    GameManager.GetIns<GameManager>().AddScore(score);
+                    GUIManager.GetIns<GUIManager>().UpdateCombo(m_currentCombo);
+
+                    m_turnComboClearCount++;
+                }
             }
+            while (cleared > 0);
+
+            if (m_shapePlacedThisTurn >= 3)
+            {
+                EndTurn();
+            }
+        }
+        private void EndTurn()
+        {
+            m_currentTurn++;
+            m_shapePlacedThisTurn = 0;
+
+            if (m_turnComboClearCount == 0)
+            {
+                m_currentCombo = 0;
+            }
+
+            m_turnComboClearCount = 0;
+                
+        }
+        private ClearLineType GetClearLineType(int linesCleared, int combo)
+        {
+            if (linesCleared == 1 && combo == 1)
+            {
+                return ClearLineType.Normal;
+            }
+            else if (linesCleared > 1 && combo == 1)
+            {
+                return ClearLineType.Multiline;
+            }
+            else if (linesCleared == 1 && combo > 1)
+            {
+                return ClearLineType.Combo;
+            }
+            else if (linesCleared > 1 && combo > 1)
+            {
+                return ClearLineType.ComboMultiline;
+            }
+
+            return ClearLineType.Normal;
+        }
+        private int CalculateScore(int linesCleared, int combo, ClearLineType type)
+        {
+            return type switch
+            {
+                ClearLineType.Normal => 10 * linesCleared,
+                ClearLineType.Multiline => (10 * linesCleared + 5 * linesCleared) + (10 * combo),
+                ClearLineType.Combo => (10 * combo),
+                ClearLineType.ComboMultiline => (10 * linesCleared * combo) + (10 * combo),
+                _ => 0,
+            };
         }
         public List<CellSlot> PreviewClearLines(GameObject square, List<CellSlot> hoveredSlots)
         {

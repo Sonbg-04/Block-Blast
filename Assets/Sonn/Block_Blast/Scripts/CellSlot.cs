@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -115,13 +116,37 @@ namespace Sonn.BlockBlast
             {
                 if (square != null)
                 {
-                    square.SetActive(false);
+                    StartCoroutine(ClearBlockEffect(square, 0.25f));
                 }
             }
 
             m_squareOnCells.Clear();
             m_originalStateHover.Clear();
         }
+        IEnumerator ClearBlockEffect(GameObject square, float duration)
+        {
+            if (square == null)
+            {
+                yield break;
+            }    
+            var sr = square.GetComponentInChildren<SpriteRenderer>();
+            if (sr == null)
+            {
+                yield break;
+            }
+            Vector3 startScale = square.transform.localScale;
+            Color startColor = sr.color;
+            float t = 0;
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+                float progress = t / duration;
 
+                square.transform.localScale = Vector3.Lerp(startScale, Vector3.zero, progress);
+                sr.color = Color.Lerp(startColor, new Color(startColor.r, startColor.g, startColor.b, 0), progress);
+                yield return null;
+            }    
+            square.SetActive(false);
+        }    
     }
 }
