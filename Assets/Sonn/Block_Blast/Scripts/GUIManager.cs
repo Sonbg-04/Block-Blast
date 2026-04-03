@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -56,6 +56,8 @@ namespace Sonn.BlockBlast
                 if (m_countdownTime < 0)
                 {
                     m_countdownTime = 0;
+                    GameOverByTime();
+                    return;
                 }
 
                 int seconds = Mathf.FloorToInt(m_countdownTime);
@@ -67,6 +69,11 @@ namespace Sonn.BlockBlast
                 }
             }
         }
+        private void GameOverByTime()
+        {
+            Debug.Log("⏰ Hết giờ -> Game Over!");
+
+        }    
         public void UpdateCombo(int combo)
         {
             if (comboTxt)

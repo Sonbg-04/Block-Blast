@@ -105,6 +105,8 @@ namespace Sonn.BlockBlast
                 shape.HoverSprite = spriteRandom;
                 shape.OnPlaced = OnShapePlaced;
             }
+
+            CheckValidMoveShapeAfterSpawn();
         }
         private void OnShapePlaced(Shape s)
         {
@@ -131,6 +133,25 @@ namespace Sonn.BlockBlast
             }
             return check;
         }
+        private void CheckValidMoveShapeAfterSpawn()
+        {
+            var shapeDatasToCheck = new List<ShapeData>();
+            foreach (var shape in m_currentShapes)
+            {
+                if (shape != null && shape.currentShapeData != null)
+                {
+                    shapeDatasToCheck.Add(shape.currentShapeData);
+                }    
+            }
+
+            bool hasMove = GridManager.GetIns<GridManager>().HasValidMove(shapeDatasToCheck);
+            if (!hasMove)
+            {
+                Debug.Log("❌ Không còn chỗ đặt hình nào nữa -> Game Over!");
+                return;
+            }    
+        }
+
     }
 }
 

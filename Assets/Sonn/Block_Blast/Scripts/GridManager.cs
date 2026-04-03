@@ -201,6 +201,25 @@ namespace Sonn.BlockBlast
             }
             while (cleared > 0);
 
+            if (m_shapePlacedThisTurn == 2)
+            {
+                var remainingShapes = new List<ShapeData>();
+                var shapes = FindObjectsOfType<Shape>();
+                foreach (var shape in shapes)
+                {
+                    if (shape.enabled && shape.currentShapeData != null)
+                    {
+                        remainingShapes.Add(shape.currentShapeData);
+                    }    
+                }
+
+                if (remainingShapes.Count == 1 && !HasValidMove(remainingShapes))
+                {
+                    Debug.Log("Shape cuối cùng không đặt được → Game Over");
+                    return;
+                }    
+            }
+            
             if (m_shapePlacedThisTurn >= 3)
             {
                 EndTurn();
@@ -323,6 +342,54 @@ namespace Sonn.BlockBlast
             }
 
             return previeweds;
+        }
+        public bool HasValidMove(List<ShapeData> shapeDatas)
+        {
+            if (shapeDatas == null || shapeDatas.Count <= 0)
+            {
+                return false;
+            }
+            foreach (var item in shapeDatas)
+            {
+                for (int startRow = 0; startRow <= (GridSize.x - item.Rows); startRow++)
+                {
+                    for (int startCol = 0; startCol <= (GridSize.y - item.Columns); startCol++)
+                    {
+                        if (CanPlaceShapeAt(item, startRow, startCol))
+                        {
+                            return true;
+                        }
+                    }
+                }    
+            }   
+            return false;
+        }
+        private bool CanPlaceShapeAt(ShapeData sd, int startRow, int startCol)
+        {
+            for (int r = 0; r < sd.Rows; r++)
+            {
+                for (int c = 0; c < sd.Columns; c++)
+                {
+                    if (!sd.Grid[r].Column[c])
+                    {
+                        continue;
+                    }
+
+                    var x = startRow + r;
+                    var y = startCol + c;
+
+                    if (x < 0 || x >= GridSize.x || y < 0 || y >= GridSize.y)
+                    {
+                        return false;
+                    }
+
+                    if (m_cell[x, y].isBlockOnCell)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }
