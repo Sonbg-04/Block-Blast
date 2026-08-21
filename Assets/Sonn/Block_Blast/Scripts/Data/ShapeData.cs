@@ -1,14 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
 {
-    [CreateAssetMenu]
-    [System.Serializable]
+    [CreateAssetMenu(menuName = "Sonn/Data/Create New Shape Data")]
+    [Serializable]
     public class ShapeData : ScriptableObject
     {
-        [System.Serializable]
+        [Serializable]
         public class Row
         {
             public bool[] Column;

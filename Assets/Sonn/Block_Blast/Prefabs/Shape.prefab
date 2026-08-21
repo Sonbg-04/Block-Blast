@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3161818099108912554}
   - component: {fileID: 7501899799828233851}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1820324d6f75b3148a19a9ce7cd57946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SquarePrefab: {fileID: 1255745839797222561, guid: 87b6c23d8dd41044b82e297b60e0393b, type: 3}
-  currentShapeData: {fileID: 11400000, guid: 7e60c5d817c5c73498fae910509ba290, type: 2}
-  BeforeShapeScale: {x: 0.65, y: 0.65, z: 0}
-  AfterShapeScale: {x: 0.9, y: 0.9, z: 0}
+  m_currentShape: {fileID: 0}
+  m_currentSprite: {fileID: 0}
+  m_squareSize: 0.48
+  m_canBeDragged: 1
