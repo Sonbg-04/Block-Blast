@@ -79,11 +79,11 @@ namespace Sonn.BlockBlast
             m_currentSprite = null;
             m_canBeDragged = true;
         }
-        public void AddOrderInLayer(int delta)
+        public void SetOrderInLayer(int delta)
         {
             for (int i = 0; i < m_activeSquares.Count; i++)
             {
-                m_activeSquares[i].AddOrderInLayer(delta);
+                m_activeSquares[i].SetOrderInLayer(delta);
             }
         }
         private void ClearCurrentSquares()

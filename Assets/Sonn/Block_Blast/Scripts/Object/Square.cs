@@ -9,10 +9,10 @@ namespace Sonn.BlockBlast
         public void SetSprite(Sprite sp)
         {
             m_sr.sprite = sp;
-        }    
-        public void AddOrderInLayer(int order)
+        }
+        public void SetOrderInLayer(int order)
         {
-            m_sr.sortingOrder += order;
+            m_sr.sortingOrder = order;
         }
     }
 }

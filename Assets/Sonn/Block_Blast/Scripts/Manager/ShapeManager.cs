@@ -10,8 +10,8 @@ namespace Sonn.BlockBlast
         [SerializeField] private Sprite[] m_squareVisuals;
         [SerializeField] private ShapeData[] m_allShape;
 
+        private int m_nextSpawnOrderInLayer = 3;
         private Shape[] m_currentShapes;
-        private int m_nextSpawnOrderInLayer;
 
         private void Awake()
         {
@@ -65,7 +65,8 @@ namespace Sonn.BlockBlast
             {
                 m_currentShapes[slotIndex] = null;
             }
-            AddOrderInLayerForSlotShapes(1, shape);
+            m_nextSpawnOrderInLayer++;
+            SetOrderInLayerForSlotShapes(m_nextSpawnOrderInLayer);
             if (AreAllSlotsEmpty())
             {
                 RespawnAllSlots();
@@ -98,11 +99,10 @@ namespace Sonn.BlockBlast
             for (int i = 0; i < m_slots.Length; i++)
             {
                 SpawnShapeAtSlot(i);
-                m_currentShapes[i].AddOrderInLayer(m_nextSpawnOrderInLayer);
-                m_nextSpawnOrderInLayer++;
+                m_currentShapes[i].SetOrderInLayer(m_nextSpawnOrderInLayer);
             }
         }
-        public void AddOrderInLayerForSlotShapes(int delta, Shape excludeShape = null)
+        private void SetOrderInLayerForSlotShapes(int order)
         {
             if (m_currentShapes == null)
             {
@@ -111,11 +111,11 @@ namespace Sonn.BlockBlast
             for (int i = 0; i < m_currentShapes.Length; i++)
             {
                 Shape shape = m_currentShapes[i];
-                if (shape == null || shape == excludeShape)
+                if (shape == null)
                 {
                     continue;
                 }
-                shape.AddOrderInLayer(delta);
+                shape.SetOrderInLayer(order);
             }
         }
         private ShapeData GetRandomShapeData()
