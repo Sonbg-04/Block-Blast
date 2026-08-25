@@ -6,15 +6,17 @@ namespace Sonn.BlockBlast
     public class Shape : MonoBehaviour
     {
         [SerializeField] private ShapeData m_currentShape;
+        [SerializeField] private ColorData m_colorData;
         [SerializeField] private Sprite m_currentSprite;
         [SerializeField] private float m_squareSize;
         [SerializeField] private bool m_canBeDragged;
 
         private Vector3 m_originalLocalScale;
+        private Color m_currentColor;
         private readonly List<Square> m_activeSquares = new();
         
+        public Color CurrentColor => m_currentColor;
         public bool CanBeDragged => m_canBeDragged && m_currentShape != null;
-        public ShapeData CurrentShapeData => m_currentShape;
         public IReadOnlyList<Square> ActiveSquares => m_activeSquares;
 
         private void Start()
@@ -30,6 +32,7 @@ namespace Sonn.BlockBlast
             ClearCurrentSquares();
             m_currentShape = shape;
             m_currentSprite = sprite;
+            m_currentColor = m_colorData.GetColorForSprite(sprite);
             if (shape == null || shape.Grid == null)
             {
                 return;
@@ -63,6 +66,7 @@ namespace Sonn.BlockBlast
                 return;
             }
             square.SetSprite(sprite);
+            square.SetSquareColor(m_currentColor);
         }
         private Vector3 GetLocalPosForCell(int row, int col, ShapeData shape)
         {

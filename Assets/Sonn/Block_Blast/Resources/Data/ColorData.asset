@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a09ded23c1c0d134e871f58ac445dd9d, type: 3}
+  m_Name: ColorData
+  m_EditorClassIdentifier: 
+  colorBlockDefinitions:
+  - block: {fileID: 21300000, guid: a2a0455a3ca57704f812e882874e27c7, type: 3}
+    blockColor: {r: 0.9019608, g: 0.32156864, b: 0.14117648, a: 1}
+  - block: {fileID: 21300000, guid: 656a217af582d6a438ef4c11e1edb435, type: 3}
+    blockColor: {r: 0.039215688, g: 0.7019608, b: 0.7764706, a: 1}
+  - block: {fileID: 21300000, guid: 6202bf993098559409d5445725371b76, type: 3}
+    blockColor: {r: 0.17254902, g: 0.8117647, b: 0.24313726, a: 1}
+  - block: {fileID: 21300000, guid: ed5b881aef568a1499129874d7a6686a, type: 3}
+    blockColor: {r: 0.9529412, g: 0.79607844, b: 0.05882353, a: 1}
+  - block: {fileID: 21300000, guid: d0e77185cb335014abba2170b46a148c, type: 3}
+    blockColor: {r: 0.8862745, g: 0.3764706, b: 0.9843137, a: 1}

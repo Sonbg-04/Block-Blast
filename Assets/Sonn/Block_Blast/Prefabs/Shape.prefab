@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_currentShape: {fileID: 0}
+  m_colorData: {fileID: 11400000, guid: 26e2f399dd2a4a140b8739cf82f772c6, type: 2}
   m_currentSprite: {fileID: 0}
   m_squareSize: 0.48
   m_canBeDragged: 1

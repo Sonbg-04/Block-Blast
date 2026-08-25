@@ -45,7 +45,7 @@ namespace Sonn.BlockBlast
             }
             else if (Input.GetMouseButtonUp(0) && m_isDragging)
             {
-                EndDrag(Input.mousePosition);
+                EndDrag();
             }
         }
         private void HandleTouchInput()
@@ -71,7 +71,7 @@ namespace Sonn.BlockBlast
                 case TouchPhase.Canceled:
                     if (m_isDragging)
                     {
-                        EndDrag(touch.position);
+                        EndDrag();
                     }
                     break;
             }
@@ -109,15 +109,14 @@ namespace Sonn.BlockBlast
             Vector3 worldPos = ScreenToWorld(screenPos);
             Vector3 targetPos = worldPos + m_pointerToShapeOffset + Vector3.up * m_dragUpOffset;
             m_draggingShape.transform.position = targetPos;
-
-            // Preview ô sẽ được đặt, board tự lo việc highlight/clear highlight
-
+            GridManager.Ins.ShowPlacementPreview(m_draggingShape);
         }
-        private void EndDrag(Vector2 screenPos)
+        private void EndDrag()
         {
             Shape shape = m_draggingShape;
             m_isDragging = false;
             m_draggingShape = null;
+            GridManager.Ins.ClearHighLights();
             if (shape == null)
             {
                 return;
@@ -135,7 +134,6 @@ namespace Sonn.BlockBlast
             }
             else
             {
-                // Đặt fail -> trả shape về vị trí ban đầu
                 shape.transform.SetParent(m_dragStartParent, true);
                 shape.transform.localPosition = m_dragStartLocalPos;
                 shape.OnDragCancelled();

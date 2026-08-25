@@ -12,6 +12,7 @@ namespace Sonn.BlockBlast
         [SerializeField] private float m_cellSize;
 
         private Cell[,] m_cells;
+        private readonly List<Cell> m_highlightedCells = new();
 
         private void Awake()
         {
@@ -48,7 +49,7 @@ namespace Sonn.BlockBlast
                 }    
             }    
         }    
-        public Cell GetCellAt(int row, int col)
+        private Cell GetCellAt(int row, int col)
         {
             if (row < 0 || row >= m_gridSize || col < 0 || col >= m_gridSize)
             {
@@ -56,7 +57,7 @@ namespace Sonn.BlockBlast
             }
             return m_cells[row, col];
         }
-        public Vector2Int? WorldToGridCoord(Vector3 worldPos)
+        private Vector2Int? WorldToGridCoord(Vector3 worldPos)
         {
             Vector3 local = m_gridParent.InverseTransformPoint(worldPos);
             float step = m_cellSize;
@@ -91,6 +92,28 @@ namespace Sonn.BlockBlast
             }
             return true;
         }
+        public void ShowPlacementPreview(Shape shape)
+        {
+            ClearHighLights();
+            if (shape == null || !TryGetPlacementCells(shape, out var targetCells))
+            {
+                return;
+            }
+            Color color = shape.CurrentColor;
+            for (int i = 0; i < targetCells.Count; i++)
+            {
+                targetCells[i].SetHighLight(true, color);
+                m_highlightedCells.Add(targetCells[i]);
+            }    
+        }    
+        public void ClearHighLights()
+        {
+            for (int i = 0; i < m_highlightedCells.Count; i++)
+            {
+                m_highlightedCells[i].SetHighLight(false, Color.clear);
+            }
+            m_highlightedCells.Clear();
+        }    
         public void PlaceShapeIntoCells(Shape shape, List<Cell> targetCells)
         {
             IReadOnlyList<Square> squares = shape.ActiveSquares;

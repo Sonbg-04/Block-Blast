@@ -6,6 +6,8 @@ namespace Sonn.BlockBlast
     {
         [SerializeField] private SpriteRenderer m_sr;
 
+        private Color m_squareColor;
+
         public void SetSprite(Sprite sp)
         {
             m_sr.sprite = sp;
@@ -14,5 +16,9 @@ namespace Sonn.BlockBlast
         {
             m_sr.sortingOrder = order;
         }
+        public void SetSquareColor(Color color)
+        {
+            m_squareColor = color;
+        }    
     }
 }
