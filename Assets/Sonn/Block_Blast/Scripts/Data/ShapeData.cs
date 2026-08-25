@@ -11,8 +11,9 @@ namespace Sonn.BlockBlast
         public class Row
         {
             public bool[] Column;
+
             private int m_size = 0;
-            public Row() { }
+
             public Row(int size)
             {
                 CreateRow(size);
