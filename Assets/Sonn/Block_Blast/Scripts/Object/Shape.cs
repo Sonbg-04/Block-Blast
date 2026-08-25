@@ -21,7 +21,6 @@ namespace Sonn.BlockBlast
         public IReadOnlyList<Square> ActiveSquares => m_activeSquares;
         public IReadOnlyList<Vector2Int> CellOffsets => m_cellOffsets;
 
-
         private void Start()
         {
             GenerateShape(m_currentShape, m_currentSprite);

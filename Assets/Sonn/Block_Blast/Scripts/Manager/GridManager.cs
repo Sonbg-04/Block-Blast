@@ -13,6 +13,7 @@ namespace Sonn.BlockBlast
 
         private Cell[,] m_cells;
         private readonly List<Cell> m_highlightedCells = new();
+        private readonly List<Square> m_highlightedSquares = new();
 
         private void Awake()
         {
@@ -104,8 +105,73 @@ namespace Sonn.BlockBlast
             {
                 targetCells[i].SetHighLight(true, color);
                 m_highlightedCells.Add(targetCells[i]);
-            }    
+            }
+            HighlightLinesAboutToClear(targetCells, color);
         }    
+        private void HighlightLinesAboutToClear(List<Cell> pendingCells, Color color)
+        {
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                if (WouldRowBeFull(r, pendingCells))
+                {
+                    HighlightExistingSquaresInRow(r, color);
+                }
+            }
+            for (int c = 0; c < m_gridSize; c++)
+            {
+                if (WouldColBeFull(c, pendingCells))
+                {
+                    HighlightExistingSquaresInCol(c, color);
+                }
+            }
+        }    
+        private bool WouldRowBeFull(int row, List<Cell> cells)
+        {
+            for (int c = 0; c < m_gridSize; c++)
+            {
+                Cell cell = m_cells[row, c];
+                if (!cell.IsOccupied && !cells.Contains(cell))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        private bool WouldColBeFull(int col, List<Cell> pendingCells)
+        {
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                Cell cell = m_cells[r, col];
+                if (!cell.IsOccupied && !pendingCells.Contains(cell))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        private void HighlightExistingSquaresInRow(int row, Color color)
+        {
+            for (int c = 0; c < m_gridSize; c++)
+            {
+                TryHighlightOccupiedSquare(m_cells[row, c], color);
+            }
+        }
+        private void HighlightExistingSquaresInCol(int col, Color color)
+        {
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                TryHighlightOccupiedSquare(m_cells[r, col], color);
+            }
+        }
+        private void TryHighlightOccupiedSquare(Cell cell, Color color)
+        {
+            if (!cell.IsOccupied || cell.OccupiedSquare == null || m_highlightedSquares.Contains(cell.OccupiedSquare))
+            {
+                return;
+            }
+            cell.OccupiedSquare.SetHighLight(true, color);
+            m_highlightedSquares.Add(cell.OccupiedSquare);
+        }
         public void ClearHighLights()
         {
             for (int i = 0; i < m_highlightedCells.Count; i++)
@@ -113,6 +179,11 @@ namespace Sonn.BlockBlast
                 m_highlightedCells[i].SetHighLight(false, Color.clear);
             }
             m_highlightedCells.Clear();
+            for (int i = 0; i < m_highlightedSquares.Count; i++)
+            {
+                m_highlightedSquares[i].SetHighLight(false, Color.clear);
+            }
+            m_highlightedSquares.Clear();
         }    
         public void PlaceShapeIntoCells(Shape shape, List<Cell> targetCells)
         {

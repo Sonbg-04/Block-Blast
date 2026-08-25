@@ -47,20 +47,6 @@ namespace Sonn.BlockBlast
             shape.SetShape(shapeData, sprite);
             m_currentShapes[slotIndex] = shape;
         }
-        public void ClearSlot(int slotIndex)
-        {
-            if (slotIndex < 0 || slotIndex >= m_currentShapes.Length)
-            {
-                return;
-            }
-            Shape shape = m_currentShapes[slotIndex];
-            if (shape == null)
-            {
-                return;
-            }
-            PoolManager.Ins.ReturnShape(shape);
-            m_currentShapes[slotIndex] = null;
-        }
         public void OnShapePlaced(Shape shape)
         {
             int slotIndex = GetSlotIndexOfShape(shape);
