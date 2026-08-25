@@ -11,7 +11,8 @@ namespace Sonn.BlockBlast
         private Square m_occupiedSquare;
         private bool m_isOccupied;
 
-        public bool IsOccupied => m_isOccupied; 
+        public Square OccupiedSquare => m_occupiedSquare;
+        public bool IsOccupied => m_isOccupied;
 
         public void SetCellPosOnGrid(Vector2Int pos)
         {

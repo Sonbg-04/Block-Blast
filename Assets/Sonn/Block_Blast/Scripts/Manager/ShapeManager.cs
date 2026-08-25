@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Sonn.BlockBlast
 {
@@ -12,6 +13,8 @@ namespace Sonn.BlockBlast
 
         private int m_nextSpawnOrderInLayer = 3;
         private Shape[] m_currentShapes;
+
+        public IReadOnlyList<Shape> CurrentShapes => m_currentShapes;
 
         private void Awake()
         {

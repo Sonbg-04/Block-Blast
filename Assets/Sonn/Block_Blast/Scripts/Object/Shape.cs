@@ -14,10 +14,13 @@ namespace Sonn.BlockBlast
         private Vector3 m_originalLocalScale;
         private Color m_currentColor;
         private readonly List<Square> m_activeSquares = new();
+        private readonly List<Vector2Int> m_cellOffsets = new();
         
         public Color CurrentColor => m_currentColor;
         public bool CanBeDragged => m_canBeDragged && m_currentShape != null;
         public IReadOnlyList<Square> ActiveSquares => m_activeSquares;
+        public IReadOnlyList<Vector2Int> CellOffsets => m_cellOffsets;
+
 
         private void Start()
         {
@@ -33,6 +36,7 @@ namespace Sonn.BlockBlast
             m_currentShape = shape;
             m_currentSprite = sprite;
             m_currentColor = m_colorData.GetColorForSprite(sprite);
+            m_cellOffsets.Clear();
             if (shape == null || shape.Grid == null)
             {
                 return;
@@ -45,6 +49,7 @@ namespace Sonn.BlockBlast
                     {
                         continue;
                     }
+                    m_cellOffsets.Add(new Vector2Int(row, col));
                     Square square = PoolManager.Ins.GetSquare();
                     if (square == null)
                     {
@@ -81,6 +86,7 @@ namespace Sonn.BlockBlast
             ClearCurrentSquares();
             m_currentShape = null;
             m_currentSprite = null;
+            m_cellOffsets.Clear();
             m_canBeDragged = true;
         }
         public void SetOrderInLayer(int delta)

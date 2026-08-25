@@ -127,5 +127,121 @@ namespace Sonn.BlockBlast
                 cell.SetOccupied(true, square);
             }
         }
+        public int CheckAndClearLines()
+        {
+            List<int> fullRows = new();
+            List<int> fullCols = new();
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                if (IsRowFull(r))
+                {
+                    fullRows.Add(r);
+                }
+            }
+            for (int c = 0; c < m_gridSize; c++)
+            {
+                if (IsColFull(c))
+                {
+                    fullCols.Add(c);
+                }
+            }
+            int totalLines = fullRows.Count + fullCols.Count;
+            if (totalLines == 0)
+            {
+                return 0;
+            }
+            HashSet<Cell> cellsToClear = new();
+            for (int i = 0; i < fullRows.Count; i++)
+            {
+                for (int c = 0; c < m_gridSize; c++)
+                {
+                    cellsToClear.Add(m_cells[fullRows[i], c]);
+                }
+            }
+            for (int i = 0; i < fullCols.Count; i++)
+            {
+                for (int r = 0; r < m_gridSize; r++)
+                {
+                    cellsToClear.Add(m_cells[r, fullCols[i]]);
+                }
+            }
+            foreach (Cell cell in cellsToClear)
+            {
+                Square square = cell.OccupiedSquare;
+                if (square != null)
+                {
+                    PoolManager.Ins.ReturnSquare(square);
+                }
+                cell.SetOccupied(false, null);
+            }
+            return totalLines;
+        }
+        private bool IsRowFull(int row)
+        {
+            for (int c = 0; c < m_gridSize; c++)
+            {
+                if (!m_cells[row, c].IsOccupied)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        private bool IsColFull(int col)
+        {
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                if (!m_cells[r, col].IsOccupied)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public bool CanShapeFitAnywhere(Shape shape)
+        {
+            if (shape == null || shape.CellOffsets.Count == 0)
+            {
+                return false;
+            }
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                for (int c = 0; c < m_gridSize; c++)
+                {
+                    if (CanPlaceOffsetsAt(shape.CellOffsets, r, c))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public bool HasAnyValidMove(IEnumerable<Shape> shapes)
+        {
+            if (shapes == null)
+            {
+                return false;
+            }
+            foreach (Shape shape in shapes)
+            {
+                if (shape != null && CanShapeFitAnywhere(shape))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool CanPlaceOffsetsAt(IReadOnlyList<Vector2Int> offsets, int originRow, int originCol)
+        {
+            for (int i = 0; i < offsets.Count; i++)
+            {
+                Cell cell = GetCellAt(originRow + offsets[i].x, originCol + offsets[i].y);
+                if (cell == null || cell.IsOccupied)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
