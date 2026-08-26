@@ -28,13 +28,12 @@ namespace Sonn.BlockBlast
         {
             Ins = this;
         }
-        private void SpawnShapeAtSlot(int slotIndex, ShapeData shapeData)
+        private void SpawnShapeAtSlot(int slotIndex, ShapeData shapeData, Sprite sprite)
         {
             if (slotIndex < 0 || slotIndex >= m_slots.Length)
             {
                 return;
             }
-            Sprite sprite = GetRandomSprite();
             Shape shape = PoolManager.Ins.GetShape();
             shape.transform.SetParent(m_slots[slotIndex].transform, false);
             shape.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -97,29 +96,186 @@ namespace Sonn.BlockBlast
         private void SpawnDistinctShapesForAllSlots()
         {
             List<ShapeData> shapeDataForSlots = GetValidShapeDataSet(m_slots.Length);
+            List<Sprite> spritesForSlots = GetDistinctRandomSprites(m_slots.Length);
             for (int i = 0; i < m_slots.Length; i++)
             {
-                SpawnShapeAtSlot(i, shapeDataForSlots[i]);
+                SpawnShapeAtSlot(i, shapeDataForSlots[i], spritesForSlots[i]);
             }
         }
         private List<ShapeData> GetValidShapeDataSet(int count)
         {
-            if (GridManager.Ins == null || GridManager.Ins.IsGridEmpty())
-            {
-                return GetDistinctRandomShapeData(count);
-            }
+            bool isGridEmpty = GridManager.Ins == null || GridManager.Ins.IsGridEmpty();
             for (int attempt = 0; attempt < Const.MAX_RETRY_SPAWN; attempt++)
             {
                 List<ShapeData> candidate = GetDistinctRandomShapeData(count);
-                for (int i = 0; i < candidate.Count; i++)
+                if (HasAnyRotationPair(candidate))
                 {
-                    if (GridManager.Ins.CanShapeDataFitAnywhere(candidate[i]))
+                    continue;
+                }
+                if (isGridEmpty || HasAnyFittingShape(candidate))
+                {
+                    return candidate;
+                }
+            }
+            if (!isGridEmpty)
+            {
+                for (int attempt = 0; attempt < Const.MAX_RETRY_SPAWN; attempt++)
+                {
+                    List<ShapeData> candidate = GetDistinctRandomShapeData(count);
+                    if (HasAnyFittingShape(candidate))
                     {
                         return candidate;
                     }
                 }
             }
             return GetDistinctRandomShapeData(count);
+        }
+        private bool HasAnyFittingShape(List<ShapeData> shapes)
+        {
+            if (GridManager.Ins == null)
+            {
+                return true;
+            }
+            for (int i = 0; i < shapes.Count; i++)
+            {
+                if (GridManager.Ins.CanShapeDataFitAnywhere(shapes[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool HasAnyRotationPair(List<ShapeData> shapes)
+        {
+            for (int i = 0; i < shapes.Count; i++)
+            {
+                for (int j = i + 1; j < shapes.Count; j++)
+                {
+                    if (AreShapesRotationsOfEachOther(shapes[i], shapes[j]))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private static bool AreShapesRotationsOfEachOther(ShapeData a, ShapeData b)
+        {
+            if (a == null || b == null)
+            {
+                return false;
+            }
+            if (a == b)
+            {
+                return true;
+            }
+            bool[,] gridA = GetTrimmedGrid(a);
+            bool[,] gridB = GetTrimmedGrid(b);
+            if (gridA.Length == 0 || gridB.Length == 0)
+            {
+                return false;
+            }
+            if (AreGridsEqual(gridA, gridB))
+            {
+                return true;
+            }
+            bool[,] rot90 = Rotate90(gridA);
+            if (AreGridsEqual(rot90, gridB))
+            {
+                return true;
+            }
+            bool[,] rot180 = Rotate90(rot90);
+            if (AreGridsEqual(rot180, gridB))
+            {
+                return true;
+            }
+            bool[,] rot270 = Rotate90(rot180);
+            if (AreGridsEqual(rot270, gridB))
+            {
+                return true;
+            }
+            return false;
+        }
+        private static bool[,] GetTrimmedGrid(ShapeData shape)
+        {
+            if (shape == null || shape.Grid == null || shape.Rows == 0 || shape.Columns == 0)
+            {
+                return new bool[0, 0];
+            }
+            int minRow = int.MaxValue;
+            int maxRow = int.MinValue;
+            int minCol = int.MaxValue;
+            int maxCol = int.MinValue;
+            for (int r = 0; r < shape.Rows; r++)
+            {
+                if (shape.Grid[r] == null || shape.Grid[r].Column == null)
+                {
+                    continue;
+                }
+                for (int c = 0; c < shape.Columns; c++)
+                {
+                    if (c < shape.Grid[r].Column.Length && shape.Grid[r].Column[c])
+                    {
+                        if (r < minRow) minRow = r;
+                        if (r > maxRow) maxRow = r;
+                        if (c < minCol) minCol = c;
+                        if (c > maxCol) maxCol = c;
+                    }
+                }
+            }
+            if (minRow > maxRow || minCol > maxCol)
+            {
+                return new bool[0, 0];
+            }
+            int rows = maxRow - minRow + 1;
+            int cols = maxCol - minCol + 1;
+            bool[,] result = new bool[rows, cols];
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    int origR = minRow + r;
+                    int origC = minCol + c;
+                    result[r, c] = shape.Grid[origR].Column[origC];
+                }
+            }
+            return result;
+        }
+        private static bool[,] Rotate90(bool[,] matrix)
+        {
+            int rows = matrix.GetLength(0);
+            int cols = matrix.GetLength(1);
+            bool[,] rotated = new bool[cols, rows];
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    rotated[c, rows - 1 - r] = matrix[r, c];
+                }
+            }
+            return rotated;
+        }
+        private static bool AreGridsEqual(bool[,] a, bool[,] b)
+        {
+            int rowsA = a.GetLength(0);
+            int colsA = a.GetLength(1);
+            int rowsB = b.GetLength(0);
+            int colsB = b.GetLength(1);
+            if (rowsA != rowsB || colsA != colsB)
+            {
+                return false;
+            }
+            for (int r = 0; r < rowsA; r++)
+            {
+                for (int c = 0; c < colsA; c++)
+                {
+                    if (a[r, c] != b[r, c])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         private List<ShapeData> GetDistinctRandomShapeData(int count)
         {
@@ -146,6 +302,31 @@ namespace Sonn.BlockBlast
             }
             return result;
         }
+        private List<Sprite> GetDistinctRandomSprites(int count)
+        {
+            List<Sprite> result = new(count);
+            if (m_squareVisuals == null || m_squareVisuals.Length == 0)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    result.Add(null);
+                }
+                return result;
+            }
+            List<Sprite> pool = new();
+            for (int i = 0; i < count; i++)
+            {
+                if (pool.Count == 0)
+                {
+                    pool.AddRange(m_squareVisuals);
+                    ShuffleList(pool);
+                }
+                int lastIndex = pool.Count - 1;
+                result.Add(pool[lastIndex]);
+                pool.RemoveAt(lastIndex);
+            }
+            return result;
+        }
         private void ShuffleList<T>(List<T> list)
         {
             for (int i = list.Count - 1; i > 0; i--)
@@ -153,14 +334,6 @@ namespace Sonn.BlockBlast
                 int j = Random.Range(0, i + 1);
                 (list[i], list[j]) = (list[j], list[i]);
             }
-        }
-        private Sprite GetRandomSprite()
-        {
-            if (m_squareVisuals == null || m_squareVisuals.Length == 0)
-            {
-                return null;
-            }
-            return m_squareVisuals[Random.Range(0, m_squareVisuals.Length)];
         }
     }
 }
