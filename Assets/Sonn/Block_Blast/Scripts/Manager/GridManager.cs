@@ -236,15 +236,7 @@ namespace Sonn.BlockBlast
                     cellsToClear.Add(m_cells[r, fullCols[i]]);
                 }
             }
-            foreach (Cell cell in cellsToClear)
-            {
-                Square square = cell.OccupiedSquare;
-                if (square != null)
-                {
-                    PoolManager.Ins.ReturnSquare(square);
-                }
-                cell.SetOccupied(false, null);
-            }
+            PlayClearEffect(fullRows, fullCols, cellsToClear);
             return totalLines;
         }
         private bool IsRowFull(int row)
@@ -314,5 +306,39 @@ namespace Sonn.BlockBlast
             }
             return true;
         }
+        private float ComputeClearDelay(Vector2Int pos, List<int> fullRows, List<int> fullCols, float value)
+        {
+            float delay = 0f;
+            bool assigned = false;
+            if (fullRows.Contains(pos.y))
+            {
+                delay = pos.x * value;
+                assigned = true;
+            }    
+            if (fullCols.Contains(pos.x))
+            {
+                float colDelay = pos.y * value;
+                delay = assigned ? Mathf.Min(delay, colDelay) : colDelay;
+            }
+            return delay;
+        }    
+        private void PlayClearEffect(List<int> fullRows, List<int> fullCols, HashSet<Cell> cellsToClear)
+        {
+            foreach (var c in cellsToClear)
+            {
+                Square s = c.OccupiedSquare;
+                Vector2Int pos = c.CellPosOnGrid;
+                c.SetOccupied(false, null);
+                if (s == null)
+                {
+                    continue;
+                }
+                float delay = ComputeClearDelay(pos, fullRows, fullCols, 0.02f);
+                s.PlayClearEffect(() =>
+                {
+                    PoolManager.Ins.ReturnSquare(s);
+                }, delay);
+            }    
+        }    
     }
 }

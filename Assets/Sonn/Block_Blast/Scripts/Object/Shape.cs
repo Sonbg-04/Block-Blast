@@ -55,7 +55,7 @@ namespace Sonn.BlockBlast
                         return;
                     }
                     square.transform.SetParent(transform, false);
-                    square.transform.localScale = Vector3.one;
+                    square.ClearSquareEffect();
                     Vector3 localPos = GetLocalPosForCell(row, col, shape);
                     square.transform.SetLocalPositionAndRotation(localPos, Quaternion.identity);
                     ApplySprite(square, sprite);
