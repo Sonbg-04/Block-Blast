@@ -48,7 +48,7 @@ namespace Sonn.BlockBlast
                     {
                         continue;
                     }
-                    m_cellOffsets.Add(new Vector2Int(row, col));
+                    m_cellOffsets.Add(new Vector2Int(col, row));
                     Square square = PoolManager.Ins.GetSquare();
                     if (square == null)
                     {
@@ -88,13 +88,6 @@ namespace Sonn.BlockBlast
             m_cellOffsets.Clear();
             m_canBeDragged = true;
         }
-        public void SetOrderInLayer(int delta)
-        {
-            for (int i = 0; i < m_activeSquares.Count; i++)
-            {
-                m_activeSquares[i].SetOrderInLayer(delta);
-            }
-        }
         private void ClearCurrentSquares()
         {
             for (int i = 0; i < m_activeSquares.Count; i++)
@@ -103,19 +96,30 @@ namespace Sonn.BlockBlast
             }
             m_activeSquares.Clear();
         }
+        private void SetSquaresTempOrderInLayer(int extraOrder)
+        {
+            for (int i = 0; i < m_activeSquares.Count; i++)
+            {
+                m_activeSquares[i].SetTempOrderInLayer(extraOrder);
+            }
+        }
+        private void RestoreSquaresOrderInLayer()
+        {
+            for (int i = 0; i < m_activeSquares.Count; i++)
+            {
+                m_activeSquares[i].RestoreOrderInLayer();
+            }
+        }
         public void OnBeginDrag()
         {
             m_canBeDragged = false;
             m_originalLocalScale = transform.localScale;
             transform.localScale = Vector3.one;
-            // TODO: có thể thêm hiệu ứng scale-up / đổi sorting layer lên trên cùng ở đây
-        }
-        public void SetPreviewValid(bool isValid)
-        {
-            // TODO: đổi màu/alpha các square để báo hiệu vị trí hiện tại đặt được hay không
+            SetSquaresTempOrderInLayer(1);
         }
         public void OnPlacedSuccessfully()
         {
+            RestoreSquaresOrderInLayer();
             m_activeSquares.Clear();
             m_canBeDragged = false;
             PoolManager.Ins.ReturnShape(this);
@@ -123,8 +127,8 @@ namespace Sonn.BlockBlast
         public void OnDragCancelled()
         {
             m_canBeDragged = true;
-            SetPreviewValid(true); // reset màu preview về mặc định
             transform.localScale = m_originalLocalScale;
+            RestoreSquaresOrderInLayer();
         }
     }
 }

@@ -13,19 +13,25 @@ namespace Sonn.BlockBlast
         private SortingGroup m_squareSort;
         private Sequence m_clearSeq;
         private Color m_squareColor;
+        private int m_originalOrderInLayer;
 
         private void Awake()
         {
             m_squareSort = GetComponent<SortingGroup>();
+            m_originalOrderInLayer = m_squareSort.sortingOrder;
         }
         public void SetSprite(Sprite sp)
         {
             m_sr.sprite = sp;
         }
-        public void SetOrderInLayer(int order)
+        public void SetTempOrderInLayer(int amount)
         {
-            m_squareSort.sortingOrder = order;
-        }
+            m_squareSort.sortingOrder = m_originalOrderInLayer + amount;
+        }    
+        public void RestoreOrderInLayer()
+        {
+            m_squareSort.sortingOrder = m_originalOrderInLayer;
+        }    
         public void SetSquareColor(Color color)
         {
             m_squareColor = color;

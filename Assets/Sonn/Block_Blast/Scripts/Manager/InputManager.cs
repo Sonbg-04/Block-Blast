@@ -82,6 +82,10 @@ namespace Sonn.BlockBlast
             {
                 return;
             }
+            if (GameManager.Ins.IsGameOver)
+            {
+                return;
+            }    
             Vector3 worldPos = ScreenToWorld(screenPos);
             Collider2D hit = Physics2D.OverlapPoint(worldPos, m_shapeLayer);
             if (hit == null)

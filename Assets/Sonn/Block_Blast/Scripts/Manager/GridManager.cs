@@ -298,7 +298,7 @@ namespace Sonn.BlockBlast
         {
             for (int i = 0; i < offsets.Count; i++)
             {
-                Cell cell = GetCellAt(originRow + offsets[i].x, originCol + offsets[i].y);
+                Cell cell = GetCellAt(originRow + offsets[i].y, originCol + offsets[i].x);
                 if (cell == null || cell.IsOccupied)
                 {
                     return false;

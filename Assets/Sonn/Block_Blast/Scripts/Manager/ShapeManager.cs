@@ -11,7 +11,6 @@ namespace Sonn.BlockBlast
         [SerializeField] private Sprite[] m_squareVisuals;
         [SerializeField] private ShapeData[] m_allShape;
 
-        private int m_nextSpawnOrderInLayer = 3;
         private Shape[] m_currentShapes;
 
         public IReadOnlyList<Shape> CurrentShapes => m_currentShapes;
@@ -23,22 +22,18 @@ namespace Sonn.BlockBlast
         private void Start()
         {
             m_currentShapes = new Shape[m_slots.Length];
-            for (int i = 0; i < m_slots.Length; i++)
-            {
-                SpawnShapeAtSlot(i);
-            }
+            SpawnDistinctShapesForAllSlots();
         }
         public void MakeSingleton()
         {
             Ins = this;
         }
-        public void SpawnShapeAtSlot(int slotIndex)
+        private void SpawnShapeAtSlot(int slotIndex, ShapeData shapeData)
         {
             if (slotIndex < 0 || slotIndex >= m_slots.Length)
             {
                 return;
             }
-            ShapeData shapeData = GetRandomShapeData();
             Sprite sprite = GetRandomSprite();
             Shape shape = PoolManager.Ins.GetShape();
             shape.transform.SetParent(m_slots[slotIndex].transform, false);
@@ -54,8 +49,6 @@ namespace Sonn.BlockBlast
             {
                 m_currentShapes[slotIndex] = null;
             }
-            m_nextSpawnOrderInLayer++;
-            SetOrderInLayerForSlotShapes(m_nextSpawnOrderInLayer);
             if (AreAllSlotsEmpty())
             {
                 RespawnAllSlots();
@@ -85,35 +78,48 @@ namespace Sonn.BlockBlast
         }
         private void RespawnAllSlots()
         {
+            SpawnDistinctShapesForAllSlots();
+        }
+        private void SpawnDistinctShapesForAllSlots()
+        {
+            List<ShapeData> shapeDataForSlots = GetDistinctRandomShapeData(m_slots.Length);
             for (int i = 0; i < m_slots.Length; i++)
             {
-                SpawnShapeAtSlot(i);
-                m_currentShapes[i].SetOrderInLayer(m_nextSpawnOrderInLayer);
+                SpawnShapeAtSlot(i, shapeDataForSlots[i]);
             }
         }
-        private void SetOrderInLayerForSlotShapes(int order)
+        private List<ShapeData> GetDistinctRandomShapeData(int count)
         {
-            if (m_currentShapes == null)
-            {
-                return;
-            }
-            for (int i = 0; i < m_currentShapes.Length; i++)
-            {
-                Shape shape = m_currentShapes[i];
-                if (shape == null)
-                {
-                    continue;
-                }
-                shape.SetOrderInLayer(order);
-            }
-        }
-        private ShapeData GetRandomShapeData()
-        {
+            List<ShapeData> result = new(count);
             if (m_allShape == null || m_allShape.Length == 0)
             {
-                return null;
+                for (int i = 0; i < count; i++)
+                {
+                    result.Add(null);
+                }
+                return result;
             }
-            return m_allShape[Random.Range(0, m_allShape.Length)];
+            List<ShapeData> pool = new();
+            for (int i = 0; i < count; i++)
+            {
+                if (pool.Count == 0)
+                {
+                    pool.AddRange(m_allShape);
+                    ShuffleList(pool);
+                }
+                int lastIndex = pool.Count - 1;
+                result.Add(pool[lastIndex]);
+                pool.RemoveAt(lastIndex);
+            }
+            return result;
+        }
+        private void ShuffleList<T>(List<T> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
         }
         private Sprite GetRandomSprite()
         {
