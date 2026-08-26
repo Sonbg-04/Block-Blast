@@ -340,5 +340,19 @@ namespace Sonn.BlockBlast
                 }, delay);
             }    
         }    
+        public bool IsGridEmpty()
+        {
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                for (int c = 0; c < m_gridSize; c++)
+                {
+                    if (m_cells[r, c].IsOccupied)
+                    {
+                        return false;
+                    }    
+                }    
+            }
+            return true;
+        }    
     }
 }
