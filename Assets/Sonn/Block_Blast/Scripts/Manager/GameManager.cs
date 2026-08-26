@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Sonn.BlockBlast
 {
@@ -8,14 +8,16 @@ namespace Sonn.BlockBlast
 
         private int m_score;
         private int m_comboCount;
-        private float m_lastClearTime = -999f;
+        private float m_lastClearTime;
 
+        public int Score => m_score;
         public bool IsGameOver { get; private set; }
 
         private void Awake()
         {
             MakeSingleton();
-            m_score = Pref.Score;
+            m_score = 0;
+            m_lastClearTime = -999f;
         }
         public void MakeSingleton()
         {
@@ -28,15 +30,25 @@ namespace Sonn.BlockBlast
             int clearedLines =  GridManager.Ins.CheckAndClearLines();
             if (clearedLines > 0)
             {
-                ProcessLineClear(placementScore, clearedLines);
+                ProcessLineClear(clearedLines);
             }    
             else
             {
                 TryResetComboIfTimeOut();
             }    
-            ShapeManager.Ins.OnShapePlaced(shape);
             CheckGameOver();
+            ShapeManager.Ins.OnShapePlaced(shape);
         }    
+        public void TriggerGameOver()
+        {
+            if (IsGameOver)
+            {
+                return;
+            }
+            IsGameOver = true;
+            TrySaveBestScore();
+            Debug.Log("Game over...!");
+        }
         private void CheckGameOver()
         {
             if (IsGameOver)
@@ -47,8 +59,7 @@ namespace Sonn.BlockBlast
             {
                 return;
             }
-            IsGameOver = true;
-            Debug.Log("Game over...!");
+            TriggerGameOver();
         }
         private void AddScore(int amount)
         {
@@ -57,7 +68,7 @@ namespace Sonn.BlockBlast
                 return;
             }
             m_score += amount;
-            Pref.Score = m_score;
+            UIEvent.OnScoreChanged?.Invoke(m_score);
         }   
         private void TryResetComboIfTimeOut()
         {
@@ -66,18 +77,30 @@ namespace Sonn.BlockBlast
                 m_comboCount = 0;
             }    
         }    
-        private void ProcessLineClear(int placementScore, int totalLine)
+        private void ProcessLineClear(int totalLine)
         {
             TryResetComboIfTimeOut();
             m_comboCount++;
             m_lastClearTime = Time.time;
             int clearScore = Const.CLEAR_SCORE_UNIT * totalLine * (totalLine + 1) / 2;
             int comboBonus = (m_comboCount - 1) * Const.COMBO_BONUS_UNIT;
-            AddScore(placementScore + clearScore + comboBonus);
+            AddScore(clearScore + comboBonus);
             if (GridManager.Ins.IsGridEmpty())
             {
-                AddScore(placementScore + clearScore + comboBonus + Const.PERFECT_CLEAR_BONUS);
+                AddScore(Const.PERFECT_CLEAR_BONUS);
             }    
+        }
+        private void TrySaveBestScore()
+        {
+            if (m_score <= Pref.BestScore)
+            {
+                return;
+            }
+            Pref.BestScore = m_score;
+        }
+        private void OnApplicationQuit()
+        {
+            TrySaveBestScore();
         }
     }
 }

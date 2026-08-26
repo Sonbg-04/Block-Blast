@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -278,6 +278,48 @@ namespace Sonn.BlockBlast
                 }
             }
             return false;
+        }
+        public bool CanShapeDataFitAnywhere(ShapeData shapeData)
+        {
+            if (shapeData == null)
+            {
+                return false;
+            }
+            List<Vector2Int> offsets = GetOffsets(shapeData);
+            if (offsets.Count == 0)
+            {
+                return false;
+            }
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                for (int c = 0; c < m_gridSize; c++)
+                {
+                    if (CanPlaceOffsetsAt(offsets, r, c))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private List<Vector2Int> GetOffsets(ShapeData shapeData)
+        {
+            List<Vector2Int> offsets = new();
+            if (shapeData.Grid == null)
+            {
+                return offsets;
+            }
+            for (int row = 0; row < shapeData.Rows; row++)
+            {
+                for (int col = 0; col < shapeData.Columns; col++)
+                {
+                    if (shapeData.Grid[row].Column[col])
+                    {
+                        offsets.Add(new Vector2Int(col, row));
+                    }
+                }
+            }
+            return offsets;
         }
         public bool HasAnyValidMove(IEnumerable<Shape> shapes)
         {

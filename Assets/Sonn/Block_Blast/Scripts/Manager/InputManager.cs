@@ -133,8 +133,8 @@ namespace Sonn.BlockBlast
             }    
             if (placed)
             {
-                shape.OnPlacedSuccessfully();
                 GameManager.Ins.HandleShapePlaced(shape);
+                shape.OnPlacedSuccessfully();
             }
             else
             {
