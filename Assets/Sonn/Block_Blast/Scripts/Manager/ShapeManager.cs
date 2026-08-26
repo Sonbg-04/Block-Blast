@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -49,10 +49,24 @@ namespace Sonn.BlockBlast
             {
                 m_currentShapes[slotIndex] = null;
             }
+        }
+        public void TryRespawnIfNeeded()
+        {
             if (AreAllSlotsEmpty())
             {
                 RespawnAllSlots();
             }
+        }
+        public bool HasAnyActiveShape()
+        {
+            for (int i = 0; i < m_currentShapes.Length; i++)
+            {
+                if (m_currentShapes[i] != null)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         private int GetSlotIndexOfShape(Shape shape)
         {
@@ -82,11 +96,30 @@ namespace Sonn.BlockBlast
         }
         private void SpawnDistinctShapesForAllSlots()
         {
-            List<ShapeData> shapeDataForSlots = GetDistinctRandomShapeData(m_slots.Length);
+            List<ShapeData> shapeDataForSlots = GetValidShapeDataSet(m_slots.Length);
             for (int i = 0; i < m_slots.Length; i++)
             {
                 SpawnShapeAtSlot(i, shapeDataForSlots[i]);
             }
+        }
+        private List<ShapeData> GetValidShapeDataSet(int count)
+        {
+            if (GridManager.Ins == null || GridManager.Ins.IsGridEmpty())
+            {
+                return GetDistinctRandomShapeData(count);
+            }
+            for (int attempt = 0; attempt < Const.MAX_RETRY_SPAWN; attempt++)
+            {
+                List<ShapeData> candidate = GetDistinctRandomShapeData(count);
+                for (int i = 0; i < candidate.Count; i++)
+                {
+                    if (GridManager.Ins.CanShapeDataFitAnywhere(candidate[i]))
+                    {
+                        return candidate;
+                    }
+                }
+            }
+            return GetDistinctRandomShapeData(count);
         }
         private List<ShapeData> GetDistinctRandomShapeData(int count)
         {

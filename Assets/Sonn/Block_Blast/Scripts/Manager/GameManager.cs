@@ -27,18 +27,26 @@ namespace Sonn.BlockBlast
         {
             int placementScore = shape.ActiveSquares.Count;
             AddScore(placementScore);
-            int clearedLines =  GridManager.Ins.CheckAndClearLines();
+            int clearedLines = GridManager.Ins.CheckAndClearLines();
             if (clearedLines > 0)
             {
                 ProcessLineClear(clearedLines);
-            }    
+            }
             else
             {
                 TryResetComboIfTimeOut();
-            }    
-            CheckGameOver();
+            }
             ShapeManager.Ins.OnShapePlaced(shape);
-        }    
+            if (ShapeManager.Ins.HasAnyActiveShape())
+            {
+                CheckGameOver();
+            }
+            else
+            {
+                ShapeManager.Ins.TryRespawnIfNeeded();
+                CheckGameOver();
+            }
+        }
         public void TriggerGameOver()
         {
             if (IsGameOver)
