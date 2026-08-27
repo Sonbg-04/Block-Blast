@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Sonn.BlockBlast
 {
@@ -7,6 +8,9 @@ namespace Sonn.BlockBlast
     {
         [SerializeField] private TextMeshProUGUI m_scoreTxt;
         [SerializeField] private TextMeshProUGUI m_bestScoreTxt;
+        [SerializeField] private Button m_btnSettings;
+        [SerializeField] private Button m_btnReturn;
+        [SerializeField] private SettingsDialog m_settingsUI;
 
         private void OnEnable()
         {
@@ -29,6 +33,10 @@ namespace Sonn.BlockBlast
         {
             UpdateScoreTxt(GameManager.Ins.Score);
             UpdateBestScoreTxt(Pref.BestScore);
+            m_btnSettings.onClick.RemoveAllListeners();
+            m_btnSettings.onClick.AddListener(ShowUISettings);
+            m_btnReturn.onClick.RemoveAllListeners();
+            m_btnReturn.onClick.AddListener(ReturnToMainMenu);
         }
         private void UpdateScoreTxt(int score)
         {
@@ -38,7 +46,14 @@ namespace Sonn.BlockBlast
         {
             m_bestScoreTxt.text = score.ToString("0000");
         }    
-
+        private void ShowUISettings()
+        {
+            m_settingsUI.Show();
+        }    
+        private void ReturnToMainMenu()
+        {
+            UIManager.Ins.ChangeState(UIType.Mainmenu);
+        }    
     }
 }
 

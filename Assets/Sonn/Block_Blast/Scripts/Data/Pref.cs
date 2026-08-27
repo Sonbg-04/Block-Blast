@@ -9,5 +9,16 @@ namespace Sonn.BlockBlast
             get => PlayerPrefs.GetInt(Const.BEST_SCORE_KEY, 0);
             set => PlayerPrefs.SetInt(Const.BEST_SCORE_KEY, value);
         }
+        public static bool Music
+        {
+            get => PlayerPrefs.GetInt(Const.MUSIC_VOLUME_KEY, 1) == 1;
+            set => PlayerPrefs.SetInt(Const.MUSIC_VOLUME_KEY, value ? 1 : 0);
+        }
+        public static bool Sound
+        {
+            get => PlayerPrefs.GetInt(Const.SOUND_VOLUME_KEY, 1) == 1;
+            set => PlayerPrefs.SetInt(Const.SOUND_VOLUME_KEY, value ? 1 : 0);
+        }
+
     }
 }

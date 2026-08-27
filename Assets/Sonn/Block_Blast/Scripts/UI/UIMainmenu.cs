@@ -10,6 +10,7 @@ namespace Sonn.BlockBlast
         public void Show()
         {
             gameObject.SetActive(true);
+            m_btnPlayGame.onClick.RemoveAllListeners();
             m_btnPlayGame.onClick.AddListener(OnClickPlayGame);
         }   
         public void Hide()
