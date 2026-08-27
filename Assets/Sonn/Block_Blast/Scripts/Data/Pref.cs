@@ -19,6 +19,10 @@ namespace Sonn.BlockBlast
             get => PlayerPrefs.GetInt(Const.SOUND_VOLUME_KEY, 1) == 1;
             set => PlayerPrefs.SetInt(Const.SOUND_VOLUME_KEY, value ? 1 : 0);
         }
-
+        public static int BoosterCount
+        {
+            get => PlayerPrefs.GetInt(Const.BOOSTER_COUNT_KEY, 3);
+            set => PlayerPrefs.SetInt(Const.BOOSTER_COUNT_KEY, value);
+        }
     }
 }

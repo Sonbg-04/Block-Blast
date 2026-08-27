@@ -110,6 +110,7 @@ namespace Sonn.BlockBlast
                 return;
             }
             Pref.BestScore = m_score;
+            UIManager.Ins.GameplayUI.CurrentBoosterCount++;
         }
         public void ResetGame()
         {
@@ -119,7 +120,6 @@ namespace Sonn.BlockBlast
             IsGameOver = false;
             UIEvent.OnScoreChanged?.Invoke(m_score);
             GridManager.Ins.ResetGrid();   
-            ShapeManager.Ins.ResetShapes(); 
         }
         private void OnApplicationQuit()
         {
