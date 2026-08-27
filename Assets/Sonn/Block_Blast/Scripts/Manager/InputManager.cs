@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Sonn.BlockBlast
 {
@@ -37,6 +38,10 @@ namespace Sonn.BlockBlast
         {
             if (Input.GetMouseButtonDown(0))
             {
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
                 TryBeginDrag(Input.mousePosition);
             }
             else if (Input.GetMouseButton(0) && m_isDragging)
@@ -58,6 +63,10 @@ namespace Sonn.BlockBlast
             switch (touch.phase)
             {
                 case TouchPhase.Began:
+                    if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                    {
+                        break;
+                    }
                     TryBeginDrag(touch.position);
                     break;
                 case TouchPhase.Moved:
@@ -85,7 +94,7 @@ namespace Sonn.BlockBlast
             if (GameManager.Ins.IsGameOver)
             {
                 return;
-            }    
+            }
             Vector3 worldPos = ScreenToWorld(screenPos);
             Collider2D hit = Physics2D.OverlapPoint(worldPos, m_shapeLayer);
             if (hit == null)
@@ -130,7 +139,7 @@ namespace Sonn.BlockBlast
             {
                 GridManager.Ins.PlaceShapeIntoCells(shape, targetCells);
                 placed = true;
-            }    
+            }
             if (placed)
             {
                 GameManager.Ins.HandleShapePlaced(shape);
