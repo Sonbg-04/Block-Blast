@@ -24,5 +24,14 @@ namespace Sonn.BlockBlast
             get => PlayerPrefs.GetInt(Const.BOOSTER_COUNT_KEY, 3);
             set => PlayerPrefs.SetInt(Const.BOOSTER_COUNT_KEY, value);
         }
+        public static string GameSaveJson
+        {
+            get => PlayerPrefs.GetString(Const.GAME_SAVE_KEY, string.Empty);
+            set => PlayerPrefs.SetString(Const.GAME_SAVE_KEY, value);
+        }
+        public static void ClearGameSave()
+        {
+            PlayerPrefs.DeleteKey(Const.GAME_SAVE_KEY);
+        }
     }
 }

@@ -47,6 +47,7 @@ namespace Sonn.BlockBlast
                 ShapeManager.Ins.TryRespawnIfNeeded();
                 CheckGameOver();
             }
+            SaveProgress();
         }
         public void TriggerGameOver()
         {
@@ -56,6 +57,7 @@ namespace Sonn.BlockBlast
             }
             IsGameOver = true;
             TrySaveBestScore();
+            Pref.ClearGameSave();
             Debug.Log("Game over...!");
             DOVirtual.DelayedCall(1f, () =>
             {
@@ -82,14 +84,14 @@ namespace Sonn.BlockBlast
             }
             m_score += amount;
             UIEvent.OnScoreChanged?.Invoke(m_score);
-        }   
+        }
         private void TryResetComboIfTimeOut()
         {
             if (m_comboCount > 0 && Time.time - m_lastClearTime > Const.COMBO_TIMEOUT)
             {
                 m_comboCount = 0;
-            }    
-        }    
+            }
+        }
         private void ProcessLineClear(int totalLine)
         {
             TryResetComboIfTimeOut();
@@ -101,7 +103,7 @@ namespace Sonn.BlockBlast
             if (GridManager.Ins.IsGridEmpty())
             {
                 AddScore(Const.PERFECT_CLEAR_BONUS);
-            }    
+            }
         }
         private void TrySaveBestScore()
         {
@@ -112,6 +114,44 @@ namespace Sonn.BlockBlast
             Pref.BestScore = m_score;
             UIManager.Ins.GameplayUI.CurrentBoosterCount++;
         }
+        public void SaveProgress()
+        {
+            if (IsGameOver)
+            {
+                Pref.ClearGameSave();
+                return;
+            }
+            var data = new GameSaveData
+            {
+                score = m_score,
+                comboCount = m_comboCount,
+                lastClearTime = m_lastClearTime,
+                occupiedCells = GridManager.Ins.GetOccupiedCellsData(),
+                currentShapeIndices = ShapeManager.Ins.GetCurrentShapeIndices(),
+                currentSpriteIndices = ShapeManager.Ins.GetCurrentSpriteIndices()
+            };
+            Pref.GameSaveJson = JsonUtility.ToJson(data);
+        }
+        public bool TryLoadProgress()
+        {
+            if (!string.IsNullOrEmpty(Pref.GameSaveJson))
+            {
+                return false;
+            }
+            GameSaveData data = JsonUtility.FromJson<GameSaveData>(Pref.GameSaveJson);
+            m_score = data.score;
+            m_comboCount = data.comboCount;
+            m_lastClearTime = data.lastClearTime;
+            IsGameOver = false;
+            GridManager.Ins.RestoreOccupiedCells(data.occupiedCells);
+            ShapeManager.Ins.RestoreShapes(data.currentShapeIndices, data.currentSpriteIndices);
+            UIEvent.OnScoreChanged?.Invoke(m_score);
+            return true;
+        }
+        public void ReturnToMainMenu()
+        {
+            SaveProgress();
+        }
         public void ResetGame()
         {
             m_score = 0;
@@ -119,11 +159,21 @@ namespace Sonn.BlockBlast
             m_lastClearTime = -999f;
             IsGameOver = false;
             UIEvent.OnScoreChanged?.Invoke(m_score);
-            GridManager.Ins.ResetGrid();   
+            GridManager.Ins.ResetGrid();
+            Pref.ClearGameSave();
+        }
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus)
+            {
+                TrySaveBestScore();
+                SaveProgress();
+            }
         }
         private void OnApplicationQuit()
         {
             TrySaveBestScore();
+            SaveProgress();
         }
     }
 }

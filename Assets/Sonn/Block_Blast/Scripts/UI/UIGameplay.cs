@@ -78,6 +78,7 @@ namespace Sonn.BlockBlast
         }    
         private void OnReturnToMainMenuClick()
         {
+            GameManager.Ins.ReturnToMainMenu();
             UIManager.Ins.ChangeState(UIType.Mainmenu);
         }    
         private void OnBoosterRandomClick()
@@ -91,6 +92,7 @@ namespace Sonn.BlockBlast
             }    
             Pref.BoosterCount = m_currentBoosterCount;
             UpdateCountBoosterTxt();
+            GameManager.Ins.SaveProgress();
         }    
     }
 }

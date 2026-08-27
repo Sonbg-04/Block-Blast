@@ -47,9 +47,9 @@ namespace Sonn.BlockBlast
                     cell.transform.localScale = Vector3.one;
                     cell.SetCellPosOnGrid(new Vector2Int(c, r));
                     m_cells[r, c] = cell;
-                }    
-            }    
-        }    
+                }
+            }
+        }
         private Cell GetCellAt(int row, int col)
         {
             if (row < 0 || row >= m_gridSize || col < 0 || col >= m_gridSize)
@@ -107,7 +107,7 @@ namespace Sonn.BlockBlast
                 m_highlightedCells.Add(targetCells[i]);
             }
             HighlightLinesAboutToClear(targetCells, color);
-        }    
+        }
         private void HighlightLinesAboutToClear(List<Cell> pendingCells, Color color)
         {
             for (int r = 0; r < m_gridSize; r++)
@@ -124,7 +124,7 @@ namespace Sonn.BlockBlast
                     HighlightExistingSquaresInCol(c, color);
                 }
             }
-        }    
+        }
         private bool WouldRowBeFull(int row, List<Cell> cells)
         {
             for (int c = 0; c < m_gridSize; c++)
@@ -184,7 +184,7 @@ namespace Sonn.BlockBlast
                 m_highlightedSquares[i].SetHighLight(false, Color.clear);
             }
             m_highlightedSquares.Clear();
-        }    
+        }
         public void PlaceShapeIntoCells(Shape shape, List<Cell> targetCells)
         {
             IReadOnlyList<Square> squares = shape.ActiveSquares;
@@ -356,14 +356,14 @@ namespace Sonn.BlockBlast
             {
                 delay = pos.x * value;
                 assigned = true;
-            }    
+            }
             if (fullCols.Contains(pos.x))
             {
                 float colDelay = pos.y * value;
                 delay = assigned ? Mathf.Min(delay, colDelay) : colDelay;
             }
             return delay;
-        }    
+        }
         private void PlayClearEffect(List<int> fullRows, List<int> fullCols, HashSet<Cell> cellsToClear)
         {
             foreach (var c in cellsToClear)
@@ -380,8 +380,8 @@ namespace Sonn.BlockBlast
                 {
                     PoolManager.Ins.ReturnSquare(s);
                 }, delay);
-            }    
-        }    
+            }
+        }
         public bool IsGridEmpty()
         {
             for (int r = 0; r < m_gridSize; r++)
@@ -391,8 +391,8 @@ namespace Sonn.BlockBlast
                     if (m_cells[r, c].IsOccupied)
                     {
                         return false;
-                    }    
-                }    
+                    }
+                }
             }
             return true;
         }
@@ -415,6 +415,57 @@ namespace Sonn.BlockBlast
                         PoolManager.Ins.ReturnSquare(square);
                     }
                 }
+            }
+        }
+        public List<OccupiedCellData> GetOccupiedCellsData()
+        {
+            List<OccupiedCellData> result = new();
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                for (int c = 0; c < m_gridSize; c++)
+                {
+                    Cell cell = m_cells[r, c];
+                    if (cell == null || !cell.IsOccupied || cell.OccupiedSquare == null)
+                    {
+                        continue;
+                    }
+                    int spriteIndex = ShapeManager.Ins.GetSpriteIndex(cell.OccupiedSquare.CurrentSprite);
+                    if (spriteIndex < 0)
+                    {
+                        continue;
+                    }
+                    result.Add(new OccupiedCellData { row = r, col = c, spriteIndex = spriteIndex });
+                }
+            }
+            return result;
+        }
+        public void RestoreOccupiedCells(List<OccupiedCellData> data)
+        {
+            ResetGrid();
+            if (data == null)
+            {
+                return;
+            }
+            for (int i = 0; i < data.Count; i++)
+            {
+                OccupiedCellData d = data[i];
+                Cell cell = GetCellAt(d.row, d.col);
+                Sprite sprite = ShapeManager.Ins.GetSpriteByIndex(d.spriteIndex);
+                if (cell == null || sprite == null)
+                {
+                    continue;
+                }
+                Square square = PoolManager.Ins.GetSquare();
+                if (square == null)
+                {
+                    continue;
+                }
+                square.ClearSquareEffect();
+                square.SetSprite(sprite);
+                square.transform.SetParent(cell.transform, false);
+                square.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                square.transform.localScale = Vector3.one;
+                cell.SetOccupied(true, square);
             }
         }
     }

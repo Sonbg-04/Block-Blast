@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -15,7 +15,9 @@ namespace Sonn.BlockBlast
         private Color m_currentColor;
         private readonly List<Square> m_activeSquares = new();
         private readonly List<Vector2Int> m_cellOffsets = new();
-        
+
+        public ShapeData CurrentShapeData => m_currentShape; 
+        public Sprite CurrentSprite => m_currentSprite; 
         public Color CurrentColor => m_currentColor;
         public bool CanBeDragged => m_canBeDragged && m_currentShape != null;
         public IReadOnlyList<Square> ActiveSquares => m_activeSquares;

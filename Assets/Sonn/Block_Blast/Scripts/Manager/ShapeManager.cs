@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -331,11 +332,11 @@ namespace Sonn.BlockBlast
         {
             for (int i = list.Count - 1; i > 0; i--)
             {
-                int j = Random.Range(0, i + 1);
+                int j = UnityEngine.Random.Range(0, i + 1);
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
-        public void ResetShapes()
+        private void ClearAllSlots()
         {
             for (int i = 0; i < m_currentShapes.Length; i++)
             {
@@ -346,7 +347,55 @@ namespace Sonn.BlockBlast
                 PoolManager.Ins.ReturnShape(m_currentShapes[i]);
                 m_currentShapes[i] = null;
             }
+        }
+        public void ResetShapes()
+        {
+            ClearAllSlots();
             SpawnDistinctShapesForAllSlots();
+        }
+        public int GetShapeDataIndex(ShapeData data) => Array.IndexOf(m_allShape, data);
+        public ShapeData GetShapeDataByIndex(int index) => (index >= 0 && index < m_allShape.Length) ? m_allShape[index] : null;
+        public int GetSpriteIndex(Sprite sprite) => Array.IndexOf(m_squareVisuals, sprite);
+        public Sprite GetSpriteByIndex(int index) => (index >= 0 && index < m_squareVisuals.Length) ? m_squareVisuals[index] : null;
+        public List<int> GetCurrentShapeIndices()
+        {
+            List<int> result = new();
+            for (int i = 0; i < m_currentShapes.Length; i++)
+            {
+                result.Add(m_currentShapes[i] == null ? -1 : GetShapeDataIndex(m_currentShapes[i].CurrentShapeData));
+            }
+            return result;
+        }
+        public List<int> GetCurrentSpriteIndices()
+        {
+            List<int> result = new();
+            for (int i = 0; i < m_currentShapes.Length; i++)
+            {
+                result.Add(m_currentShapes[i] == null ? -1 : GetSpriteIndex(m_currentShapes[i].CurrentSprite));
+            }
+            return result;
+        }
+        public void RestoreShapes(List<int> shapeIndices, List<int> spriteIndices)
+        {
+            ClearAllSlots();
+            if (shapeIndices == null || spriteIndices == null)
+            {
+                return;
+            }
+            for (int i = 0; i < m_slots.Length && i < shapeIndices.Count; i++)
+            {
+                int shapeIdx = shapeIndices[i];
+                if (shapeIdx < 0)
+                {
+                    continue;
+                }
+                ShapeData data = GetShapeDataByIndex(shapeIdx);
+                Sprite sprite = i < spriteIndices.Count ? GetSpriteByIndex(spriteIndices[i]) : null;
+                if (data != null)
+                {
+                    SpawnShapeAtSlot(i, data, sprite);
+                }
+            }
         }
     }
 }

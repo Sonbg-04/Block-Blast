@@ -11,5 +11,6 @@ namespace Sonn.BlockBlast
         public const string MUSIC_VOLUME_KEY = "MUSIC_VOLUME";
         public const string SOUND_VOLUME_KEY = "SOUND_VOLUME";
         public const string BOOSTER_COUNT_KEY = "BOOSTER_COUNT";
+        public const string GAME_SAVE_KEY = "GAME_SAVE_DATA";
     }
 }
