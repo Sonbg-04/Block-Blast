@@ -315,7 +315,7 @@ namespace Sonn.BlockBlast
                 {
                     if (shapeData.Grid[row].Column[col])
                     {
-                        offsets.Add(new Vector2Int(col, row));
+                        offsets.Add(new Vector2Int(col, shapeData.Rows - 1 - row));
                     }
                 }
             }

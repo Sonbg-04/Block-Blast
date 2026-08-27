@@ -11,6 +11,9 @@ namespace Sonn.BlockBlast
         [SerializeField] private Button m_btnSettings;
         [SerializeField] private Button m_btnReturn;
         [SerializeField] private SettingsDialog m_settingsUI;
+        [SerializeField] private GameOverDialog m_gameOverUI;
+
+        public GameOverDialog GameOverUI  => m_gameOverUI;
 
         private void OnEnable()
         {

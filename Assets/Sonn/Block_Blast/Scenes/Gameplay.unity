@@ -461,6 +461,7 @@ GameObject:
   - component: {fileID: 95684712}
   - component: {fileID: 95684714}
   - component: {fileID: 95684713}
+  - component: {fileID: 95684715}
   m_Layer: 5
   m_Name: EndGameDialog
   m_TagString: Untagged
@@ -526,6 +527,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 95684711}
   m_CullTransparentMesh: 1
+--- !u!114 &95684715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 95684711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31ff2a758dbeee94ab1603be2f00909a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_scoreAfterLoseTxt: {fileID: 737011501}
+  m_bestScoreAfterLoseTxt: {fileID: 2067252347}
+  m_btnHome: {fileID: 20588036}
+  m_btnReplay: {fileID: 631157165}
 --- !u!1 &96007410
 GameObject:
   m_ObjectHideFlags: 0
@@ -1225,10 +1242,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 739958343}
-  - {fileID: 1679702527}
-  - {fileID: 95684712}
   - {fileID: 1827002521}
   - {fileID: 2003586930}
+  - {fileID: 1679702527}
+  - {fileID: 95684712}
   m_Father: {fileID: 1972789959}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1253,6 +1270,7 @@ MonoBehaviour:
   m_btnSettings: {fileID: 2046700196}
   m_btnReturn: {fileID: 2062760983}
   m_settingsUI: {fileID: 1679702530}
+  m_gameOverUI: {fileID: 95684715}
 --- !u!1 &243677977
 GameObject:
   m_ObjectHideFlags: 0
@@ -4818,9 +4836,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_btnClose: {fileID: 398613085}
-  m_iconStates:
-  - {fileID: 1617331433}
-  - {fileID: 330958158}
   m_btnStates:
   - {fileID: 472970103}
   - {fileID: 382516322}

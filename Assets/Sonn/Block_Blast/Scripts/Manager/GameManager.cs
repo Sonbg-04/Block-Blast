@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -56,6 +57,10 @@ namespace Sonn.BlockBlast
             IsGameOver = true;
             TrySaveBestScore();
             Debug.Log("Game over...!");
+            DOVirtual.DelayedCall(1f, () =>
+            {
+                UIManager.Ins.GameplayUI.GameOverUI.Show();
+            });
         }
         private void CheckGameOver()
         {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -21,10 +21,6 @@ namespace Sonn.BlockBlast
         public IReadOnlyList<Square> ActiveSquares => m_activeSquares;
         public IReadOnlyList<Vector2Int> CellOffsets => m_cellOffsets;
 
-        private void Start()
-        {
-            GenerateShape(m_currentShape, m_currentSprite);
-        }
         public void SetShape(ShapeData shape, Sprite sprite)
         {
             GenerateShape(shape, sprite);
@@ -48,7 +44,7 @@ namespace Sonn.BlockBlast
                     {
                         continue;
                     }
-                    m_cellOffsets.Add(new Vector2Int(col, row));
+                    m_cellOffsets.Add(new Vector2Int(col, shape.Rows - 1 - row));
                     Square square = PoolManager.Ins.GetSquare();
                     if (square == null)
                     {
