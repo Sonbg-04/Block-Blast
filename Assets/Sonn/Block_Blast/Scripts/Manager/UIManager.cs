@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Sonn.BlockBlast
 {
@@ -18,6 +18,7 @@ namespace Sonn.BlockBlast
         public UILoading LoadingUI => m_loadingUI;
         public UIMainmenu MainmenuUI => m_mainMenuUI;
         public UIGameplay GameplayUI => m_gameplayUI;
+        public bool IsInGameplay => m_currentUIState != null && m_currentUIState.UIType == UIType.Gameplay;
 
         private void Awake()
         {

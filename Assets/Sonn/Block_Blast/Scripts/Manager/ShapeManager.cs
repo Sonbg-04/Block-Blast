@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -338,6 +338,11 @@ namespace Sonn.BlockBlast
         }
         private void ClearAllSlots()
         {
+            if (m_currentShapes == null)
+            {
+                m_currentShapes = new Shape[m_slots.Length];
+                return;
+            }
             for (int i = 0; i < m_currentShapes.Length; i++)
             {
                 if (m_currentShapes[i] == null)

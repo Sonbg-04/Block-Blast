@@ -19,16 +19,11 @@ namespace Sonn.BlockBlast
         }
         private void OnPlayGameClick()
         {
-            if (!string.IsNullOrEmpty(Pref.GameSaveJson))
-            {
-                UIManager.Ins.ChangeState(UIType.Gameplay);
-                GameManager.Ins.TryLoadProgress();
-            }
-            else
+            if (!GameManager.Ins.TryLoadProgress())
             {
                 GameManager.Ins.ResetGame();
-                UIManager.Ins.ChangeState(UIType.Gameplay);
             }
+            UIManager.Ins.ChangeState(UIType.Gameplay);
         }    
     }
 }

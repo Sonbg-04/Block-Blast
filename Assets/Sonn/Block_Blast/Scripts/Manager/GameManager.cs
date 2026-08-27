@@ -1,4 +1,4 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -131,22 +131,36 @@ namespace Sonn.BlockBlast
                 currentSpriteIndices = ShapeManager.Ins.GetCurrentSpriteIndices()
             };
             Pref.GameSaveJson = JsonUtility.ToJson(data);
+            PlayerPrefs.Save();
         }
         public bool TryLoadProgress()
         {
-            if (!string.IsNullOrEmpty(Pref.GameSaveJson))
+            if (string.IsNullOrEmpty(Pref.GameSaveJson))
             {
                 return false;
             }
-            GameSaveData data = JsonUtility.FromJson<GameSaveData>(Pref.GameSaveJson);
-            m_score = data.score;
-            m_comboCount = data.comboCount;
-            m_lastClearTime = data.lastClearTime;
-            IsGameOver = false;
-            GridManager.Ins.RestoreOccupiedCells(data.occupiedCells);
-            ShapeManager.Ins.RestoreShapes(data.currentShapeIndices, data.currentSpriteIndices);
-            UIEvent.OnScoreChanged?.Invoke(m_score);
-            return true;
+            try
+            {
+                GameSaveData data = JsonUtility.FromJson<GameSaveData>(Pref.GameSaveJson);
+                if (data == null)
+                {
+                    return false;
+                }
+                m_score = data.score;
+                m_comboCount = data.comboCount;
+                m_lastClearTime = data.lastClearTime;
+                IsGameOver = false;
+                GridManager.Ins.RestoreOccupiedCells(data.occupiedCells);
+                ShapeManager.Ins.RestoreShapes(data.currentShapeIndices, data.currentSpriteIndices);
+                UIEvent.OnScoreChanged?.Invoke(m_score);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[GameManager] Failed to load progress: {ex.Message}");
+                Pref.ClearGameSave();
+                return false;
+            }
         }
         public void ReturnToMainMenu()
         {
@@ -166,14 +180,20 @@ namespace Sonn.BlockBlast
         {
             if (pauseStatus)
             {
-                TrySaveBestScore();
-                SaveProgress();
+                if (UIManager.Ins.IsInGameplay && !IsGameOver)
+                {
+                    TrySaveBestScore();
+                    SaveProgress();
+                }
             }
         }
         private void OnApplicationQuit()
         {
-            TrySaveBestScore();
-            SaveProgress();
+            if (UIManager.Ins.IsInGameplay && !IsGameOver)
+            {
+                TrySaveBestScore();
+                SaveProgress();
+            }
         }
     }
 }

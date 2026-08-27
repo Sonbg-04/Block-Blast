@@ -399,6 +399,10 @@ namespace Sonn.BlockBlast
         public void ResetGrid()
         {
             ClearHighLights();
+            if (m_cells == null)
+            {
+                return;
+            }
             for (int r = 0; r < m_gridSize; r++)
             {
                 for (int c = 0; c < m_gridSize; c++)
