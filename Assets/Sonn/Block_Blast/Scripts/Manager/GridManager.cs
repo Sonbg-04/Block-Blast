@@ -395,6 +395,27 @@ namespace Sonn.BlockBlast
                 }    
             }
             return true;
-        }    
+        }
+        public void ResetGrid()
+        {
+            ClearHighLights();
+            for (int r = 0; r < m_gridSize; r++)
+            {
+                for (int c = 0; c < m_gridSize; c++)
+                {
+                    Cell cell = m_cells[r, c];
+                    if (cell == null || !cell.IsOccupied)
+                    {
+                        continue;
+                    }
+                    Square square = cell.OccupiedSquare;
+                    cell.SetOccupied(false, null);
+                    if (square != null)
+                    {
+                        PoolManager.Ins.ReturnSquare(square);
+                    }
+                }
+            }
+        }
     }
 }

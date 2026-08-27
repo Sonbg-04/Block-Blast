@@ -335,5 +335,18 @@ namespace Sonn.BlockBlast
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
+        public void ResetShapes()
+        {
+            for (int i = 0; i < m_currentShapes.Length; i++)
+            {
+                if (m_currentShapes[i] == null)
+                {
+                    continue;
+                }
+                PoolManager.Ins.ReturnShape(m_currentShapes[i]);
+                m_currentShapes[i] = null;
+            }
+            SpawnDistinctShapesForAllSlots();
+        }
     }
 }

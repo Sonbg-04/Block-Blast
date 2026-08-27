@@ -36,7 +36,8 @@ namespace Sonn.BlockBlast
         }    
         private void OnReplayGame()
         {
-
+            GameManager.Ins.ResetGame();
+            Hide();
         }    
     }
 }

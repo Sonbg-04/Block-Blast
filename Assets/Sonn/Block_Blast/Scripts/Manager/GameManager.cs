@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using UnityEngine;
 
 namespace Sonn.BlockBlast
@@ -110,6 +110,16 @@ namespace Sonn.BlockBlast
                 return;
             }
             Pref.BestScore = m_score;
+        }
+        public void ResetGame()
+        {
+            m_score = 0;
+            m_comboCount = 0;
+            m_lastClearTime = -999f;
+            IsGameOver = false;
+            UIEvent.OnScoreChanged?.Invoke(m_score);
+            GridManager.Ins.ResetGrid();   
+            ShapeManager.Ins.ResetShapes(); 
         }
         private void OnApplicationQuit()
         {

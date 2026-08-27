@@ -19,6 +19,7 @@ namespace Sonn.BlockBlast
         }
         private void OnClickPlayGame()
         {
+            GameManager.Ins.ResetGame();
             UIManager.Ins.ChangeState(UIType.Gameplay);
         }    
     }
